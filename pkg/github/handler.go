@@ -74,13 +74,15 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	//   config/one-time/github-source.yaml
 	switch event := event.(type) {
 	case *github.PullRequestEvent:
-		handleErr(event, HandleOther(event))
+		handleErr(event, HandlePullRequest(event))
+	case *github.PushEvent:
+		handleErr(event, HandlePush(event))
 	case *github.PullRequestReviewEvent:
 		handleErr(event, HandleOther(event))
 	case *github.PullRequestReviewCommentEvent:
 		handleErr(event, HandleOther(event))
 	case *github.IssueCommentEvent:
-		handleErr(event, HandleIssue(event))
+		handleErr(event, HandleIssueComment(event))
 	default:
 		log.Printf("Unrecognized event: %T", event)
 		http.Error(w, "Unknown event", http.StatusBadRequest)
@@ -88,7 +90,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func HandleIssue(ice *github.IssueCommentEvent) error {
+func HandleIssueComment(ice *github.IssueCommentEvent) error {
 	log.Printf("Comment from %s on #%d: %q",
 		ice.Sender.GetLogin(),
 		ice.Issue.GetNumber(),
@@ -114,6 +116,42 @@ func HandleIssue(ice *github.IssueCommentEvent) error {
 		return err
 	}
 
+	return nil
+}
+
+func HandlePullRequest(pre *github.PullRequestEvent) error {
+	log.Printf("PR: %v", pre.GetPullRequest().String())
+
+	// TODO(mattmoor): To respond to code changes, I think the appropriate set of events are:
+	// 1. opened
+	// 2. reopened
+	// 3. synchronized
+
+	// (from https://developer.github.com/v3/activity/events/types/#pullrequestevent)
+	// Other events we might see include:
+	// * assigned
+	// * unassigned
+	// * review_requested
+	// * review_request_removed
+	// * labeled
+	// * unlabeled
+	// * edited
+	// * closed
+
+	ctx := context.Background()
+	ghc := GetClient(ctx)
+
+	msg := fmt.Sprintf("PR event: %v", pre.GetAction())
+	_, _, err := ghc.Issues.CreateComment(ctx,
+		pre.Repo.Owner.GetLogin(), pre.Repo.GetName(), pre.GetNumber(),
+		&github.IssueComment{
+			Body: &msg,
+		})
+	return err
+}
+
+func HandlePush(pe *github.PushEvent) error {
+	log.Printf("Push: %v", pe.String())
 	return nil
 }
 

@@ -19,6 +19,7 @@ spec:
   - pull_request_review
   - pull_request_review_comment
   - issue_comment
+  - push
 
   # The repository to which we are listening.
   # TODO(mattmoor): What if I want multiple?  What about Org?
