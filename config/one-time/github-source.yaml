@@ -1,0 +1,46 @@
+apiVersion: eventing.knative.dev/v1alpha1
+kind: Channel
+metadata:
+  name: githubchannel
+spec:
+  provisioner:
+    apiVersion: eventing.knative.dev/v1alpha1
+    kind: ClusterChannelProvisioner
+    name: in-memory-channel
+---
+apiVersion: sources.eventing.knative.dev/v1alpha1
+kind: GitHubSource
+metadata:
+  name: mattmoor-kontext
+spec:
+  # The types of events to which we are listening.
+  eventTypes:
+  - pull_request
+  - pull_request_review
+  - pull_request_review_comment
+  - issue_comment
+
+  # The repository to which we are listening.
+  # TODO(mattmoor): What if I want multiple?  What about Org?
+  ownerAndRepository: mattmoor/kontext
+
+  # This is the Github access token that is used to register
+  # the webhook.
+  accessToken:
+    secretKeyRef:
+      name: github-hook-secret
+      key: accessToken
+
+  # This is the secret that is registered alongside the webhook
+  # for Github to use to identify itself when calling our endpoint.
+  secretToken:
+    secretKeyRef:
+      name: github-hook-secret
+      key: secretToken
+
+  # TODO(mattmoor): Why can't this simply be my Service?
+  # Then I could do without the Channel/Subscription...
+  sink:
+    apiVersion: eventing.knative.dev/v1alpha1
+    kind: Channel
+    name: githubchannel
