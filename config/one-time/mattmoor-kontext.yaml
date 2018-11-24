@@ -1,13 +1,3 @@
-apiVersion: eventing.knative.dev/v1alpha1
-kind: Channel
-metadata:
-  name: githubchannel
-spec:
-  provisioner:
-    apiVersion: eventing.knative.dev/v1alpha1
-    kind: ClusterChannelProvisioner
-    name: in-memory-channel
----
 apiVersion: sources.eventing.knative.dev/v1alpha1
 kind: GitHubSource
 metadata:
@@ -16,13 +6,10 @@ spec:
   # The types of events to which we are listening.
   eventTypes:
   - pull_request
-  - pull_request_review
-  - pull_request_review_comment
-  - issue_comment
-  - push
+  - issues
 
   # The repository to which we are listening.
-  # TODO(mattmoor): What if I want multiple?  What about Org?
+  # There should be a file like this for each watched repository.
   ownerAndRepository: mattmoor/kontext
 
   # This is the Github access token that is used to register
