@@ -12,11 +12,7 @@ import (
 
 	"github.com/mattmoor/knobots/pkg/botinfo"
 	"github.com/mattmoor/knobots/pkg/client"
-)
-
-var (
-	botName        = botinfo.GetName()
-	botDescription = `Check for "DO NOT SUBMIT" in added lines.`
+	"github.com/mattmoor/knobots/pkg/visitor"
 )
 
 func main() {
@@ -60,57 +56,10 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// TODO(mattmoor): For bonus points, return the position to comment on.
-func HasDoNotSubmit(cf *github.CommitFile) bool {
-	hs, err := diff.ParseHunks([]byte(cf.GetPatch()))
-	if err != nil {
-		log.Printf("ERROR PARSING HUNKS: %v", err)
-		return false
-	}
-
-	// Search the lines of each diff "hunk" for an addition line containing
-	// the words "DO NOT SUBMIT".
-	for _, hunk := range hs {
-		s := string(hunk.Body)
-		lines := strings.Split(s, "\n")
-		for _, line := range lines {
-			if !strings.HasPrefix(line, "+") {
-				continue
-			}
-			if strings.Contains(line, "DO NOT SUBMIT") {
-				return true
-			}
-		}
-	}
-
-	return false
-}
-
-// Determine whether we need a `/hold` on this PR.
-func NeedsHold(ctx context.Context, pre *github.PullRequestEvent) (bool, error) {
-	ghc := client.New(ctx)
-
-	owner, repo := pre.Repo.Owner.GetLogin(), pre.Repo.GetName()
-
-	lopt := &github.ListOptions{}
-	for {
-		cfs, resp, err := ghc.PullRequests.ListFiles(ctx, owner, repo, pre.GetNumber(), lopt)
-		if err != nil {
-			return false, err
-		}
-		for _, cf := range cfs {
-			if HasDoNotSubmit(cf) {
-				return true, nil
-			}
-		}
-		if lopt.Page == resp.NextPage {
-			break
-		}
-		lopt.Page = resp.NextPage
-	}
-
-	return false, nil
-}
+var (
+	botName        = botinfo.GetName()
+	botDescription = `Check for "DO NOT SUBMIT" in added lines.`
+)
 
 func HandlePullRequest(pre *github.PullRequestEvent) error {
 	pr := pre.GetPullRequest()
@@ -120,19 +69,34 @@ func HandlePullRequest(pre *github.PullRequestEvent) error {
 	if pr.GetState() == "closed" {
 		return nil
 	}
-	ctx := context.Background()
-	ghc := client.New(ctx)
 
-	want, err := NeedsHold(ctx, pre)
+	owner, repo, number := pre.Repo.Owner.GetLogin(), pre.Repo.GetName(), pre.GetNumber()
+
+	found := false
+	err := visitor.Hunks(owner, repo, number,
+		func(_ string, hunk *diff.Hunk) (visitor.VisitControl, error) {
+			s := string(hunk.Body)
+			lines := strings.Split(s, "\n")
+			for _, line := range lines {
+				if !strings.HasPrefix(line, "+") {
+					continue
+				}
+				if strings.Contains(line, "DO NOT SUBMIT") {
+					// Break after the first occurrence we find.
+					// TODO(mattmoor): Track occurrence locations and comment on them.
+					found = true
+					return visitor.Break, nil
+				}
+			}
+			return visitor.Continue, nil
+		})
 	if err != nil {
 		return err
 	}
 
-	owner, repo := pre.Repo.Owner.GetLogin(), pre.Repo.GetName()
-
 	// Determine the check state.
 	var state string
-	if want {
+	if found {
 		state = "failure"
 	} else {
 		state = "success"
@@ -140,6 +104,8 @@ func HandlePullRequest(pre *github.PullRequestEvent) error {
 
 	sha := pre.GetPullRequest().GetHead().GetSHA()
 
+	ctx := context.Background()
+	ghc := client.New(ctx)
 	_, _, err = ghc.Repositories.CreateStatus(ctx, owner, repo, sha, &github.RepoStatus{
 		Context:     &botName,
 		State:       &state,

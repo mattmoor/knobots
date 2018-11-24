@@ -1,8 +1,6 @@
 package main
 
 import (
-	"archive/tar"
-	"compress/gzip"
 	"context"
 	"fmt"
 	"io"
@@ -17,6 +15,7 @@ import (
 
 	"github.com/mattmoor/knobots/pkg/client"
 	"github.com/mattmoor/knobots/pkg/comment"
+	"github.com/mattmoor/knobots/pkg/visitor"
 )
 
 func main() {
@@ -141,27 +140,31 @@ func FindIssueTodos(owner, repo, sha string, issues []int) ([]match, error) {
 	reIssue := IssueRegexp(issues)
 
 	var hits []match
-	err := FileWalker(owner, repo, sha, func(filename string, reader io.Reader) error {
-		if strings.HasPrefix(filename, "vendor/") {
-			return nil
-		}
-		body, err := ioutil.ReadAll(reader)
-		if err != nil {
-			return err
-		}
-		ms := reIssue.FindAll(body, 5)
-		if ms == nil {
-			return nil
-		}
-		for _, m := range ms {
-			hits = append(hits, match{
-				filename: filename,
-				// TODO(mattmoor): Find a way to include position to comment on it?
-				text: string(m),
-			})
-		}
-		return nil
-	})
+	err := visitor.Files(owner, repo, sha,
+		func(filename string, reader io.Reader) (visitor.VisitControl, error) {
+			// TODO(mattmoor): Base this on .gitattributes (we should build a library).
+			if strings.HasPrefix(filename, "vendor/") {
+				return visitor.Continue, nil
+			}
+			body, err := ioutil.ReadAll(reader)
+			if err != nil {
+				return visitor.Break, err
+			}
+			// TODO(mattmoor): We should group the output by file and make it clear that
+			// we only show the first 5 results per file.
+			ms := reIssue.FindAll(body, 5)
+			if ms == nil {
+				return visitor.Continue, nil
+			}
+			for _, m := range ms {
+				hits = append(hits, match{
+					filename: filename,
+					// TODO(mattmoor): Find a way to include position to comment on it?
+					text: string(m),
+				})
+			}
+			return visitor.Continue, nil
+		})
 	if err != nil {
 		return nil, err
 	}
@@ -268,50 +271,4 @@ func HandleIssues(ie *github.IssuesEvent) error {
 		State: &opened,
 	})
 	return err
-}
-
-type FileVisitor func(filename string, reader io.Reader) error
-
-func FileWalker(owner, repo, sha string, v FileVisitor) error {
-	// TODO(mattmoor): Maybe this should use this:
-	// https://godoc.org/github.com/google/go-github/github#RepositoriesService.GetArchiveLink
-	url := fmt.Sprintf("https://codeload.github.com/%s/%s/tar.gz/%s", owner, repo, sha)
-	resp, err := http.Get(url)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	gr, err := gzip.NewReader(resp.Body)
-	if err != nil {
-		return err
-	}
-
-	tr := tar.NewReader(gr)
-
-	// All of the files in the archive should have the following prefix
-	prefix := fmt.Sprintf("%s-%s/", repo, sha)
-
-	for {
-		header, err := tr.Next()
-		if err == io.EOF {
-			break
-		} else if err != nil {
-			return err
-		}
-		if !strings.HasPrefix(header.Name, prefix) {
-			log.Printf("File without prefix: %s", header.Name)
-			continue
-		}
-		if !header.FileInfo().Mode().IsRegular() {
-			log.Printf("Ignoring file (not regular): %s", header.Name)
-			continue
-		}
-		stripped := header.Name[len(prefix):]
-		if err := v(stripped, tr); err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
