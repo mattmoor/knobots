@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
@@ -12,6 +11,7 @@ import (
 
 	"github.com/mattmoor/knobots/pkg/botinfo"
 	"github.com/mattmoor/knobots/pkg/client"
+	"github.com/mattmoor/knobots/pkg/handler"
 	"github.com/mattmoor/knobots/pkg/visitor"
 )
 
@@ -21,23 +21,8 @@ func main() {
 }
 
 func Handler(w http.ResponseWriter, r *http.Request) {
-	payload, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		log.Printf("ERROR: no payload: %v", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	// TODO(mattmoor): This should be:
-	//     eventType := github.WebHookType(r)
-	// https://github.com/knative/eventing-sources/issues/120
-	// HACK HACK HACK
-	eventType := strings.Split(r.Header.Get("ce-eventtype"), ".")[4]
-
-	event, err := github.ParseWebHook(eventType, payload)
-	if err != nil {
-		log.Printf("ERROR: unable to parse webhook: %v", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	event := handler.ParseGithubWebhook(w, r)
+	if event == nil {
 		return
 	}
 
@@ -45,14 +30,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	//   config/one-time/github-source.yaml
 	switch event := event.(type) {
 	case *github.PullRequestEvent:
-		if err := HandlePullRequest(event); err != nil {
-			log.Printf("Error handling %T: %v", event, err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-	default:
-		log.Printf("Unrecognized event: %T", event)
-		http.Error(w, "Unknown event", http.StatusBadRequest)
-		return
+		handler.InternalError(w, event, HandlePullRequest(event))
 	}
 }
 
