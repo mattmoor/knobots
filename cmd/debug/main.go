@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -10,7 +9,7 @@ import (
 
 	"github.com/google/go-github/github"
 
-	"github.com/mattmoor/knobots/pkg/client"
+	"github.com/mattmoor/knobots/pkg/comment"
 )
 
 func main() {
@@ -62,29 +61,27 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 func HandleIssues(ie *github.IssuesEvent) error {
 	log.Printf("Issue: %v", ie.GetIssue().String())
 
-	ctx := context.Background()
-	ghc := client.New(ctx)
+	owner, repo, number := ie.Repo.Owner.GetLogin(), ie.Repo.GetName(), ie.GetIssue().GetNumber()
 
-	msg := fmt.Sprintf("Issues event: %v", ie.GetAction())
-	_, _, err := ghc.Issues.CreateComment(ctx,
-		ie.Repo.Owner.GetLogin(), ie.Repo.GetName(), ie.GetIssue().GetNumber(),
-		&github.IssueComment{
-			Body: &msg,
-		})
-	return err
+	if err := comment.CleanupOlder(owner, repo, number); err != nil {
+		return err
+	}
+
+	return comment.Create(
+		owner, repo, number,
+		fmt.Sprintf("Issues event: %v", ie.GetAction()))
 }
 
 func HandlePullRequest(pre *github.PullRequestEvent) error {
 	log.Printf("PR: %v", pre.GetPullRequest().String())
 
-	ctx := context.Background()
-	ghc := client.New(ctx)
+	owner, repo, number := pre.Repo.Owner.GetLogin(), pre.Repo.GetName(), pre.GetNumber()
 
-	msg := fmt.Sprintf("PR event: %v", pre.GetAction())
-	_, _, err := ghc.Issues.CreateComment(ctx,
-		pre.Repo.Owner.GetLogin(), pre.Repo.GetName(), pre.GetNumber(),
-		&github.IssueComment{
-			Body: &msg,
-		})
-	return err
+	if err := comment.CleanupOlder(owner, repo, number); err != nil {
+		return err
+	}
+
+	return comment.Create(
+		owner, repo, number,
+		fmt.Sprintf("PR event: %v", pre.GetAction()))
 }

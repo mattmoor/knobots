@@ -15,17 +15,14 @@ import (
 
 	"github.com/google/go-github/github"
 
-	"github.com/mattmoor/knobots/pkg/botinfo"
 	"github.com/mattmoor/knobots/pkg/client"
+	"github.com/mattmoor/knobots/pkg/comment"
 )
 
 func main() {
 	http.HandleFunc("/", Handler)
 	http.ListenAndServe(":8080", nil)
 }
-
-// This should be unique per bot.
-var MagicString = fmt.Sprintf(`<!--%s-->`, botinfo.GetName())
 
 func Handler(w http.ResponseWriter, r *http.Request) {
 	payload, err := ioutil.ReadAll(r.Body)
@@ -135,48 +132,6 @@ func IssueRegexp(issues []int) *regexp.Regexp {
 	}, ""))
 }
 
-func HasMagicString(comment string) bool {
-	return strings.Contains(comment, MagicString)
-}
-
-func WithMagicString(comment string) *string {
-	both := MagicString + "\n" + comment
-	return &both
-}
-
-func CleanupOldComments(owner, repo string, number int) error {
-	ctx := context.Background()
-	ghc := client.New(ctx)
-
-	var ids []int64
-
-	lopt := &github.IssueListCommentsOptions{}
-	for {
-		comments, resp, err := ghc.Issues.ListComments(ctx, owner, repo, number, lopt)
-		if err != nil {
-			return err
-		}
-		for _, comment := range comments {
-			if HasMagicString(comment.GetBody()) {
-				ids = append(ids, comment.GetID())
-			}
-		}
-		if lopt.Page == resp.NextPage {
-			break
-		}
-		lopt.Page = resp.NextPage
-	}
-
-	for _, id := range ids {
-		_, err := ghc.Issues.DeleteComment(ctx, owner, repo, id)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 type match struct {
 	filename string
 	text     string
@@ -214,21 +169,12 @@ func FindIssueTodos(owner, repo, sha string, issues []int) ([]match, error) {
 }
 
 func CommentWithProlog(prolog string, owner, repo string, number int, hits []match) error {
-	ctx := context.Background()
-	ghc := client.New(ctx)
-
 	parts := []string{prolog}
 	for _, hit := range hits {
 		parts = append(parts, fmt.Sprintf(" * `%s` contains: `%s`", hit.filename, hit.text))
 	}
 
-	msg := strings.Join(parts, "\n")
-	_, _, err := ghc.Issues.CreateComment(ctx,
-		owner, repo, number,
-		&github.IssueComment{
-			Body: WithMagicString(msg),
-		})
-	return err
+	return comment.Create(owner, repo, number, strings.Join(parts, "\n"))
 }
 
 func HandlePullRequest(pre *github.PullRequestEvent) error {
@@ -245,7 +191,7 @@ func HandlePullRequest(pre *github.PullRequestEvent) error {
 		return err
 	} else if len(fixedIssues) == 0 {
 		// This doesn't fix any issues, so nothing to do.
-		return CleanupOldComments(owner, repo, pr.GetNumber())
+		return comment.CleanupOlder(owner, repo, pr.GetNumber())
 	}
 	// TODO(mattmoor): Check to see if each of the numbers is
 	// actually an issue that's open.
@@ -255,7 +201,7 @@ func HandlePullRequest(pre *github.PullRequestEvent) error {
 		return err
 	}
 
-	if err := CleanupOldComments(owner, repo, pr.GetNumber()); err != nil {
+	if err := comment.CleanupOlder(owner, repo, pr.GetNumber()); err != nil {
 		return err
 	}
 
@@ -301,7 +247,7 @@ func HandleIssues(ie *github.IssuesEvent) error {
 		return err
 	}
 
-	if err := CleanupOldComments(owner, repo, issue.GetNumber()); err != nil {
+	if err := comment.CleanupOlder(owner, repo, issue.GetNumber()); err != nil {
 		return err
 	}
 
