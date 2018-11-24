@@ -10,6 +10,7 @@ import (
 	"github.com/google/go-github/github"
 
 	"github.com/mattmoor/knobots/pkg/client"
+	"github.com/mattmoor/knobots/pkg/milestone"
 )
 
 func main() {
@@ -86,41 +87,15 @@ func HandlePullRequest(pre *github.PullRequestEvent) error {
 }
 
 func needsTriage(owner, repo string, number int) error {
-	ctx := context.Background()
-	ghc := client.New(ctx)
-	m, err := getOrCreateMilestone(ctx, ghc, owner, repo, "Needs Triage")
+	m, err := milestone.GetOrCreate(owner, repo, "Needs Triage")
 	if err != nil {
 		return err
 	}
 
+	ctx := context.Background()
+	ghc := client.New(ctx)
 	_, _, err = ghc.Issues.Edit(ctx, owner, repo, number, &github.IssueRequest{
 		Milestone: m.Number,
 	})
 	return err
-}
-
-func getOrCreateMilestone(ctx context.Context, client *github.Client,
-	owner, repo, title string) (*github.Milestone, error) {
-	// Walk the pages of milestones looking for one matching our title.
-	lopt := &github.MilestoneListOptions{}
-	for {
-		ms, resp, err := client.Issues.ListMilestones(ctx, owner, repo, lopt)
-		if err != nil {
-			return nil, err
-		}
-		for _, m := range ms {
-			if m.GetTitle() == title {
-				return m, nil
-			}
-		}
-		if lopt.Page == resp.NextPage {
-			break
-		}
-		lopt.Page = resp.NextPage
-	}
-
-	m, _, err := client.Issues.CreateMilestone(ctx, owner, repo, &github.Milestone{
-		Title: &title,
-	})
-	return m, err
 }
