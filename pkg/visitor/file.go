@@ -41,7 +41,8 @@ func Files(owner, repo, sha string, v FileCallback) error {
 			return err
 		}
 		if !strings.HasPrefix(header.Name, prefix) {
-			return fmt.Errorf("File without prefix: %s", header.Name)
+			log.Printf("File without prefix: %s", header.Name)
+			continue
 		}
 		if !header.FileInfo().Mode().IsRegular() {
 			log.Printf("Ignoring file (not regular): %s", header.Name)
