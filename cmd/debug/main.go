@@ -6,11 +6,11 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/google/go-github/github"
-	"golang.org/x/oauth2"
+
+	"github.com/mattmoor/knobots/pkg/client"
 )
 
 func main() {
@@ -63,7 +63,7 @@ func HandleIssues(ie *github.IssuesEvent) error {
 	log.Printf("Issue: %v", ie.GetIssue().String())
 
 	ctx := context.Background()
-	ghc := GetClient(ctx)
+	ghc := client.New(ctx)
 
 	msg := fmt.Sprintf("Issues event: %v", ie.GetAction())
 	_, _, err := ghc.Issues.CreateComment(ctx,
@@ -78,7 +78,7 @@ func HandlePullRequest(pre *github.PullRequestEvent) error {
 	log.Printf("PR: %v", pre.GetPullRequest().String())
 
 	ctx := context.Background()
-	ghc := GetClient(ctx)
+	ghc := client.New(ctx)
 
 	msg := fmt.Sprintf("PR event: %v", pre.GetAction())
 	_, _, err := ghc.Issues.CreateComment(ctx,
@@ -87,16 +87,4 @@ func HandlePullRequest(pre *github.PullRequestEvent) error {
 			Body: &msg,
 		})
 	return err
-}
-
-func GetClient(ctx context.Context) *github.Client {
-	return github.NewClient(
-		oauth2.NewClient(ctx,
-			oauth2.StaticTokenSource(
-				&oauth2.Token{
-					AccessToken: os.Getenv("GITHUB_ACCESS_TOKEN"),
-				},
-			),
-		),
-	)
 }

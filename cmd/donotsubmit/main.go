@@ -5,12 +5,12 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/google/go-github/github"
-	"golang.org/x/oauth2"
 	"sourcegraph.com/sourcegraph/go-diff/diff"
+
+	"github.com/mattmoor/knobots/pkg/client"
 )
 
 var (
@@ -87,7 +87,7 @@ func HasDoNotSubmit(cf *github.CommitFile) bool {
 
 // Determine whether we need a `/hold` on this PR.
 func NeedsHold(ctx context.Context, pre *github.PullRequestEvent) (bool, error) {
-	ghc := GetClient(ctx)
+	ghc := client.New(ctx)
 
 	owner, repo := pre.Repo.Owner.GetLogin(), pre.Repo.GetName()
 
@@ -120,7 +120,7 @@ func HandlePullRequest(pre *github.PullRequestEvent) error {
 		return nil
 	}
 	ctx := context.Background()
-	ghc := GetClient(ctx)
+	ghc := client.New(ctx)
 
 	want, err := NeedsHold(ctx, pre)
 	if err != nil {
@@ -147,16 +147,4 @@ func HandlePullRequest(pre *github.PullRequestEvent) error {
 	})
 
 	return err
-}
-
-func GetClient(ctx context.Context) *github.Client {
-	return github.NewClient(
-		oauth2.NewClient(ctx,
-			oauth2.StaticTokenSource(
-				&oauth2.Token{
-					AccessToken: os.Getenv("GITHUB_ACCESS_TOKEN"),
-				},
-			),
-		),
-	)
 }

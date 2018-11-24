@@ -9,13 +9,13 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/google/go-github/github"
-	"golang.org/x/oauth2"
+
+	"github.com/mattmoor/knobots/pkg/client"
 )
 
 func main() {
@@ -145,7 +145,7 @@ func WithMagicString(comment string) *string {
 
 func CleanupOldComments(owner, repo string, number int) error {
 	ctx := context.Background()
-	ghc := GetClient(ctx)
+	ghc := client.New(ctx)
 
 	var ids []int64
 
@@ -214,7 +214,7 @@ func FindIssueTodos(owner, repo, sha string, issues []int) ([]match, error) {
 
 func CommentWithProlog(prolog string, owner, repo string, number int, hits []match) error {
 	ctx := context.Background()
-	ghc := GetClient(ctx)
+	ghc := client.New(ctx)
 
 	parts := []string{prolog}
 	for _, hit := range hits {
@@ -287,7 +287,7 @@ func HandleIssues(ie *github.IssuesEvent) error {
 	//  3. If we find any, then reopen the issue and leave a comment
 
 	ctx := context.Background()
-	ghc := GetClient(ctx)
+	ghc := client.New(ctx)
 
 	// Determine the SHA of the default branch.
 	br, _, err := ghc.Repositories.GetBranch(ctx, owner, repo, ie.Repo.GetDefaultBranch())
@@ -367,16 +367,4 @@ func FileWalker(owner, repo, sha string, v FileVisitor) error {
 	}
 
 	return nil
-}
-
-func GetClient(ctx context.Context) *github.Client {
-	return github.NewClient(
-		oauth2.NewClient(ctx,
-			oauth2.StaticTokenSource(
-				&oauth2.Token{
-					AccessToken: os.Getenv("GITHUB_ACCESS_TOKEN"),
-				},
-			),
-		),
-	)
 }

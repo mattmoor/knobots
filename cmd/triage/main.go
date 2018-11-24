@@ -5,11 +5,11 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/google/go-github/github"
-	"golang.org/x/oauth2"
+
+	"github.com/mattmoor/knobots/pkg/client"
 )
 
 func main() {
@@ -87,7 +87,7 @@ func HandlePullRequest(pre *github.PullRequestEvent) error {
 
 func needsTriage(owner, repo string, number int) error {
 	ctx := context.Background()
-	ghc := GetClient(ctx)
+	ghc := client.New(ctx)
 	m, err := getOrCreateMilestone(ctx, ghc, owner, repo, "Needs Triage")
 	if err != nil {
 		return err
@@ -123,16 +123,4 @@ func getOrCreateMilestone(ctx context.Context, client *github.Client,
 		Title: &title,
 	})
 	return m, err
-}
-
-func GetClient(ctx context.Context) *github.Client {
-	return github.NewClient(
-		oauth2.NewClient(ctx,
-			oauth2.StaticTokenSource(
-				&oauth2.Token{
-					AccessToken: os.Getenv("GITHUB_ACCESS_TOKEN"),
-				},
-			),
-		),
-	)
 }
