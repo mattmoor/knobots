@@ -15,6 +15,7 @@ import (
 
 	"github.com/google/go-github/github"
 
+	"github.com/mattmoor/knobots/pkg/botinfo"
 	"github.com/mattmoor/knobots/pkg/client"
 )
 
@@ -24,7 +25,7 @@ func main() {
 }
 
 // This should be unique per bot.
-const MagicString = `<!--TODO BOT-->`
+var MagicString = fmt.Sprintf(`<!--%s-->`, botinfo.GetName())
 
 func Handler(w http.ResponseWriter, r *http.Request) {
 	payload, err := ioutil.ReadAll(r.Body)

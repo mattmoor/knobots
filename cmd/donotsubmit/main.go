@@ -10,11 +10,12 @@ import (
 	"github.com/google/go-github/github"
 	"sourcegraph.com/sourcegraph/go-diff/diff"
 
+	"github.com/mattmoor/knobots/pkg/botinfo"
 	"github.com/mattmoor/knobots/pkg/client"
 )
 
 var (
-	botName        = "DO NOT SUBMIT"
+	botName        = botinfo.GetName()
 	botDescription = `Check for "DO NOT SUBMIT" in added lines.`
 )
 
