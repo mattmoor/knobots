@@ -63,6 +63,10 @@ func HandlePullRequest(pre *github.PullRequestEvent) error {
 	var comments []*github.DraftReviewComment
 	err := visitor.Hunks(owner, repo, number,
 		func(path string, hs []*diff.Hunk) (visitor.VisitControl, error) {
+			// TODO(mattmoor): Base this on .gitattributes (we should build a library).
+			if strings.HasPrefix(path, "vendor/") {
+				return visitor.Continue, nil
+			}
 			// Each hunk header @@ takes a line.
 			// For subsequent hunks, this is covered by the trailing `\n`
 			// in each hunk, but the first needs to start at offset 1.
