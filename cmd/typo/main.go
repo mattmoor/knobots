@@ -4,8 +4,10 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"path/filepath"
 	"strings"
 
+	"github.com/client9/misspell"
 	"github.com/google/go-github/github"
 	"sourcegraph.com/sourcegraph/go-diff/diff"
 
@@ -38,7 +40,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 var (
 	botName        = botinfo.GetName()
-	botDescription = `Check for "DO NOT SUBMIT" in added lines.`
+	botDescription = `Check for typos in added lines.`
 )
 
 func HandlePullRequest(pre *github.PullRequestEvent) error {
@@ -52,6 +54,12 @@ func HandlePullRequest(pre *github.PullRequestEvent) error {
 
 	owner, repo, number := pre.Repo.Owner.GetLogin(), pre.Repo.GetName(), pre.GetNumber()
 
+	r := misspell.Replacer{
+		Replacements: misspell.DictMain,
+		Debug:        false,
+	}
+	r.Compile()
+
 	var comments []*github.DraftReviewComment
 	err := visitor.Hunks(owner, repo, number,
 		func(path string, hs []*diff.Hunk) (visitor.VisitControl, error) {
@@ -62,15 +70,24 @@ func HandlePullRequest(pre *github.PullRequestEvent) error {
 			for _, hunk := range hs {
 				lines := strings.Split(string(hunk.Body), "\n")
 				for _, line := range lines {
+					// Increase our offset for each line we see.
 					if strings.HasPrefix(line, "+") {
-						if strings.Contains(line, "DO NOT SUBMIT") {
-							position := offset // Copy it.
+						orig := line[1:]
+						updated := orig // Default to skip comment when to files match.
+						if filepath.Ext(path) == ".go" {
+							updated, _ = r.ReplaceGo(orig)
+						} else if filepath.Ext(path) == ".md" {
+							updated, _ = r.Replace(orig)
+						}
+						if updated != orig {
+							position := offset // Copy it because of &.
 							comments = append(comments, &github.DraftReviewComment{
 								Path:     &path,
 								Position: &position,
-								Body:     comment.WithSignature(`Found "DO NOT SUBMIT".`),
+								Body:     comment.WithSuggestion(updated),
 							})
 						}
+
 					}
 					// Increase our offset for each line we see.
 					offset++
