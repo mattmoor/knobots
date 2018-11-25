@@ -10,7 +10,7 @@ import (
 // This should be unique per bot.
 var signature = fmt.Sprintf("<!--%s-->", botinfo.GetName())
 
-func hasSignature(comment string) bool {
+func HasSignature(comment string) bool {
 	return strings.Contains(comment, signature)
 }
 

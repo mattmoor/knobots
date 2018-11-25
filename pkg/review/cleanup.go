@@ -1,4 +1,4 @@
-package comment
+package review
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"github.com/google/go-github/github"
 
 	"github.com/mattmoor/knobots/pkg/client"
+	"github.com/mattmoor/knobots/pkg/comment"
 )
 
 func CleanupOlder(owner, repo string, number int) error {
@@ -14,15 +15,15 @@ func CleanupOlder(owner, repo string, number int) error {
 
 	var ids []int64
 
-	lopt := &github.IssueListCommentsOptions{}
+	lopt := &github.PullRequestListCommentsOptions{}
 	for {
-		comments, resp, err := ghc.Issues.ListComments(ctx, owner, repo, number, lopt)
+		comments, resp, err := ghc.PullRequests.ListComments(ctx, owner, repo, number, lopt)
 		if err != nil {
 			return err
 		}
-		for _, comment := range comments {
-			if HasSignature(comment.GetBody()) {
-				ids = append(ids, comment.GetID())
+		for _, c := range comments {
+			if comment.HasSignature(c.GetBody()) {
+				ids = append(ids, c.GetID())
 			}
 		}
 		if lopt.Page == resp.NextPage {
@@ -32,7 +33,7 @@ func CleanupOlder(owner, repo string, number int) error {
 	}
 
 	for _, id := range ids {
-		_, err := ghc.Issues.DeleteComment(ctx, owner, repo, id)
+		_, err := ghc.PullRequests.DeleteComment(ctx, owner, repo, id)
 		if err != nil {
 			return err
 		}

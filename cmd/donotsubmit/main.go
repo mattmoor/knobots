@@ -11,7 +11,9 @@ import (
 
 	"github.com/mattmoor/knobots/pkg/botinfo"
 	"github.com/mattmoor/knobots/pkg/client"
+	"github.com/mattmoor/knobots/pkg/comment"
 	"github.com/mattmoor/knobots/pkg/handler"
+	"github.com/mattmoor/knobots/pkg/review"
 	"github.com/mattmoor/knobots/pkg/visitor"
 )
 
@@ -50,20 +52,28 @@ func HandlePullRequest(pre *github.PullRequestEvent) error {
 
 	owner, repo, number := pre.Repo.Owner.GetLogin(), pre.Repo.GetName(), pre.GetNumber()
 
-	found := false
+	var comments []*github.DraftReviewComment
 	err := visitor.Hunks(owner, repo, number,
-		func(_ string, hunk *diff.Hunk) (visitor.VisitControl, error) {
-			s := string(hunk.Body)
-			lines := strings.Split(s, "\n")
-			for _, line := range lines {
-				if !strings.HasPrefix(line, "+") {
-					continue
-				}
-				if strings.Contains(line, "DO NOT SUBMIT") {
-					// Break after the first occurrence we find.
-					// TODO(mattmoor): Track occurrence locations and comment on them.
-					found = true
-					return visitor.Break, nil
+		func(path string, hs []*diff.Hunk) (visitor.VisitControl, error) {
+			// Each hunk header @@ takes a line.
+			// For subsequent hunks, this is covered by the trailing `\n`
+			// in each hunk, but the first needs to start at offset 1.
+			offset := 1
+			for _, hunk := range hs {
+				lines := strings.Split(string(hunk.Body), "\n")
+				for _, line := range lines {
+					// Increase our offset for each line we see.
+					if strings.HasPrefix(line, "+") {
+						if strings.Contains(line, "DO NOT SUBMIT") {
+							position := offset // Copy it.
+							comments = append(comments, &github.DraftReviewComment{
+								Path:     &path,
+								Position: &position,
+								Body:     comment.WithSignature(`Found "DO NOT SUBMIT".`),
+							})
+						}
+					}
+					offset++
 				}
 			}
 			return visitor.Continue, nil
@@ -72,18 +82,26 @@ func HandlePullRequest(pre *github.PullRequestEvent) error {
 		return err
 	}
 
+	if err := review.CleanupOlder(owner, repo, number); err != nil {
+		return err
+	}
+
 	// Determine the check state.
 	var state string
-	if found {
+	if len(comments) != 0 {
 		state = "failure"
+
+		if err := review.Create(owner, repo, number, comments); err != nil {
+			return err
+		}
 	} else {
 		state = "success"
 	}
 
-	sha := pre.GetPullRequest().GetHead().GetSHA()
-
+	sha := pr.GetHead().GetSHA()
 	ctx := context.Background()
 	ghc := client.New(ctx)
+
 	_, _, err = ghc.Repositories.CreateStatus(ctx, owner, repo, sha, &github.RepoStatus{
 		Context:     &botName,
 		State:       &state,

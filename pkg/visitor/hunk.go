@@ -9,7 +9,7 @@ import (
 	"github.com/mattmoor/knobots/pkg/client"
 )
 
-type HunkCallback func(filename string, hunk *diff.Hunk) (VisitControl, error)
+type HunkCallback func(filename string, hunks []*diff.Hunk) (VisitControl, error)
 
 func Hunks(owner, repo string, num int, v HunkCallback) error {
 	ctx := context.Background()
@@ -43,13 +43,5 @@ func visitHunks(cf *github.CommitFile, hc HunkCallback) (VisitControl, error) {
 		return Break, err
 	}
 
-	for _, hunk := range hs {
-		if vc, err := hc(cf.GetFilename(), hunk); err != nil {
-			return Break, err
-		} else if vc == Break {
-			return Break, nil
-		}
-	}
-
-	return Continue, nil
+	return hc(cf.GetFilename(), hs)
 }
