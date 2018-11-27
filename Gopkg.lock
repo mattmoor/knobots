@@ -2,9 +2,12 @@
 
 
 [[projects]]
-  digest = "1:3ca7a76c163b9694cc89f50ed108f6c8b0595083c676cf5c1b06aa082fa323b5"
+  digest = "1:a58083c7c5f9e83cc3bc1af06f53b92693ed6cbdf691a1f3a14dcb2bcee2f53c"
   name = "github.com/client9/misspell"
-  packages = ["."]
+  packages = [
+    ".",
+    "cmd/misspell",
+  ]
   pruneopts = "NUT"
   revision = "b90dc15cfd220ecf8bbc9043ecb928cef381f011"
   version = "v0.3.4"
@@ -295,9 +298,14 @@
   analyzer-version = 1
   input-imports = [
     "github.com/client9/misspell",
+    "github.com/client9/misspell/cmd/misspell",
     "github.com/google/go-github/github",
     "golang.org/x/oauth2",
     "gopkg.in/src-d/go-git.v4",
+    "gopkg.in/src-d/go-git.v4/config",
+    "gopkg.in/src-d/go-git.v4/plumbing",
+    "gopkg.in/src-d/go-git.v4/plumbing/object",
+    "gopkg.in/src-d/go-git.v4/plumbing/transport/http",
     "sourcegraph.com/sourcegraph/go-diff/diff",
   ]
   solver-name = "gps-cdcl"

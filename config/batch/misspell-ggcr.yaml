@@ -1,0 +1,16 @@
+apiVersion: build.knative.dev/v1alpha1
+kind: Build
+metadata:
+  generateName: misspell-ggcr
+spec:
+  source:
+    git:
+      url: https://github.com/google/go-containerregistry.git
+      revision: master
+  template:
+    name: misspell
+    arguments:
+    - name: ORGANIZATION
+      value: google
+    - name: REPOSITORY
+      value: go-containerregistry

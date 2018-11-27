@@ -1,0 +1,2 @@
+baseImageOverrides:
+  github.com/mattmoor/knobots/vendor/github.com/client9/misspell/cmd/misspell: docker.io/library/ubuntu:latest

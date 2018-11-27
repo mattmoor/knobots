@@ -1,0 +1,16 @@
+apiVersion: build.knative.dev/v1alpha1
+kind: Build
+metadata:
+  generateName: misspell-knative-build
+spec:
+  source:
+    git:
+      url: https://github.com/knative/build.git
+      revision: master
+  template:
+    name: misspell
+    arguments:
+    - name: ORGANIZATION
+      value: knative
+    - name: REPOSITORY
+      value: build
