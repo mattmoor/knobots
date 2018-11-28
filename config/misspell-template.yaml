@@ -12,7 +12,7 @@ spec:
     image: github.com/mattmoor/knobots/vendor/github.com/client9/misspell/cmd/misspell
     # We override the entrypoint of the ko image to embed shell functionality.
     command: ["/bin/bash", "-c"]
-    args: ["/ko-app -w $(find -name '*.go' | grep -v vendor)"]
+    args: ["/ko-app -w $(find -path './vendor' -prune -o -type f -name '*.go' -print)"]
 
   - name: open-pull-request
     image: github.com/mattmoor/knobots/cmd/pr-builder
