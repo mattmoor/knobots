@@ -11,7 +11,7 @@ spec:
   - name: gofmt
     image: golang
     command: ["/bin/bash", "-c"]
-    args: ["gofmt -s -w $(find -name '*.go' | grep -v vendor)"]
+    args: ["gofmt -s -w $(find -path './vendor' -prune -o -type f -name '*.go' -print)"]
 
   - name: open-pull-request
     image: github.com/mattmoor/knobots/cmd/pr-builder
@@ -19,7 +19,7 @@ spec:
     - "-organization=${ORGANIZATION}"
     - "-repository=${REPOSITORY}"
     - "-title=Run gofmt"
-    - "-body=Produced via: `gofmt -s -w $(find -name '*.go' | grep -v vendor)`"
+    - "-body=Produced via: `gofmt -s -w $(find -path './vendor' -prune -o -type f -name '*.go' -print))`"
     env:
     - name: GITHUB_ACCESS_TOKEN
       valueFrom:
