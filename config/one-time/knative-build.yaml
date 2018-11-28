@@ -1,7 +1,7 @@
 apiVersion: sources.eventing.knative.dev/v1alpha1
 kind: GitHubSource
 metadata:
-  name: mattmoor-kontext
+  name: knative-build
 spec:
   # The types of events to which we are listening.
   eventTypes:
@@ -10,7 +10,7 @@ spec:
 
   # The repository to which we are listening.
   # There should be a file like this for each watched repository.
-  ownerAndRepository: mattmoor/kontext
+  ownerAndRepository: knative/build
 
   # This is the Github access token that is used to register
   # the webhook.

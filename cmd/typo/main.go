@@ -1,7 +1,7 @@
 package main
 
 import (
-	"context"
+	// "context"
 	"log"
 	"net/http"
 	"path/filepath"
@@ -12,7 +12,7 @@ import (
 	"sourcegraph.com/sourcegraph/go-diff/diff"
 
 	"github.com/mattmoor/knobots/pkg/botinfo"
-	"github.com/mattmoor/knobots/pkg/client"
+	// "github.com/mattmoor/knobots/pkg/client"
 	"github.com/mattmoor/knobots/pkg/comment"
 	"github.com/mattmoor/knobots/pkg/handler"
 	"github.com/mattmoor/knobots/pkg/review"
@@ -117,27 +117,28 @@ func HandlePullRequest(pre *github.PullRequestEvent) error {
 	}
 
 	// Determine the check state.
-	var state string
+	// var state string
 	if len(comments) != 0 {
-		state = "failure"
+		// state = "failure"
 
 		if err := review.Create(owner, repo, number, comments); err != nil {
 			return err
 		}
-	} else {
-		state = "success"
+		// } else {
+		// 	state = "success"
 	}
 
-	sha := pr.GetHead().GetSHA()
-	ctx := context.Background()
-	ghc := client.New(ctx)
+	// TODO(mattmoor): This would need non-zero repo permissions, but commenting needs nothing.
+	// sha := pr.GetHead().GetSHA()
+	// ctx := context.Background()
+	// ghc := client.New(ctx)
 
-	_, _, err = ghc.Repositories.CreateStatus(ctx, owner, repo, sha, &github.RepoStatus{
-		Context:     &botName,
-		State:       &state,
-		Description: &botDescription,
-		// TODO(mattmoor): Consider adding a target URL for where we found the string.
-	})
+	// _, _, err = ghc.Repositories.CreateStatus(ctx, owner, repo, sha, &github.RepoStatus{
+	// 	Context:     &botName,
+	// 	State:       &state,
+	// 	Description: &botDescription,
+	// 	// TODO(mattmoor): Consider adding a target URL for where we found the string.
+	// })
 
 	return err
 }
