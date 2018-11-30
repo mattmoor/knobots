@@ -191,6 +191,18 @@
   version = "v0.3.0"
 
 [[projects]]
+  branch = "release-branch.go1.10"
+  digest = "1:e2b04acfeb8492928c55f03ad2d3c84f3cfd9e6657cb9e1687d196f15a592d08"
+  name = "golang.org/x/tools"
+  packages = [
+    "cmd/goimports",
+    "go/ast/astutil",
+    "imports",
+  ]
+  pruneopts = "NUT"
+  revision = "156d532d4f67148ceab07c3b59ed7fa13bdbf00c"
+
+[[projects]]
   digest = "1:655acbef8faad33db29b6a35655341fb4a594e87e56635f05a3e70ed0bd7bd95"
   name = "google.golang.org/appengine"
   packages = [
@@ -301,6 +313,7 @@
     "github.com/client9/misspell/cmd/misspell",
     "github.com/google/go-github/github",
     "golang.org/x/oauth2",
+    "golang.org/x/tools/cmd/goimports",
     "gopkg.in/src-d/go-git.v4",
     "gopkg.in/src-d/go-git.v4/config",
     "gopkg.in/src-d/go-git.v4/plumbing",

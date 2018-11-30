@@ -1,2 +1,3 @@
 baseImageOverrides:
   github.com/mattmoor/knobots/vendor/github.com/client9/misspell/cmd/misspell: docker.io/library/ubuntu:latest
+  github.com/mattmoor/knobots/vendor/golang.org/x/tools/cmd/goimports: docker.io/library/ubuntu:latest

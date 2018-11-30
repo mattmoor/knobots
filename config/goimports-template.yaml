@@ -1,0 +1,40 @@
+apiVersion: build.knative.dev/v1alpha1
+kind: BuildTemplate
+metadata:
+  name: goimports
+spec:
+  parameters:
+  - name: ORGANIZATION
+  - name: REPOSITORY
+
+  steps:
+  - name: goimports
+    image: github.com/mattmoor/knobots/vendor/golang.org/x/tools/cmd/goimports
+    command: ["/bin/bash", "-c"]
+    args: ["/ko-app -w $(find -name '*.go' | grep -v vendor)"]
+
+  - name: open-pull-request
+    image: github.com/mattmoor/knobots/cmd/pr-builder
+    args:
+    - "-organization=${ORGANIZATION}"
+    - "-repository=${REPOSITORY}"
+    - "-title=Run goimports"
+    - "-body=Produced via: `goimports -w $(find -name '*.go' | grep -v vendor)`"
+    env:
+    - name: GITHUB_ACCESS_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: github-comment-secret
+          key: accessToken
+    - name: GITHUB_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: github-comment-secret
+          key: username
+    # Inject the generated pod name so that we can use it as a
+    # pseudo-random branch name (and associate open PRs with
+    # build logs).
+    - name: POD_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name

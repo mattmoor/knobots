@@ -1,0 +1,16 @@
+apiVersion: build.knative.dev/v1alpha1
+kind: Build
+metadata:
+  generateName: goimports-knative-pkg
+spec:
+  source:
+    git:
+      url: https://github.com/knative/pkg.git
+      revision: master
+  template:
+    name: goimports
+    arguments:
+    - name: ORGANIZATION
+      value: knative
+    - name: REPOSITORY
+      value: pkg
