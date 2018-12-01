@@ -1,0 +1,16 @@
+apiVersion: build.knative.dev/v1alpha1
+kind: Build
+metadata:
+  generateName: prettier-knative-serving
+spec:
+  source:
+    git:
+      url: https://github.com/knative/serving.git
+      revision: master
+  template:
+    name: prettier
+    arguments:
+    - name: ORGANIZATION
+      value: knative
+    - name: REPOSITORY
+      value: serving
