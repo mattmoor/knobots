@@ -12,7 +12,7 @@ spec:
     image: gcr.io/convoy-adapter/prettier
     # We override the entrypoint of the ko image to embed shell functionality.
     command: ["/bin/sh", "-c"]
-    args: ["prettier --write --proseWrap=always $(find -name '*.md' | grep -v vendor)"]
+    args: ["prettier --write --prose-wrap=always $(find -name '*.md' | grep -v vendor | grep -v .github)"]
 
   - name: open-pull-request
     image: github.com/mattmoor/knobots/cmd/pr-builder
@@ -20,7 +20,7 @@ spec:
     - "-organization=${ORGANIZATION}"
     - "-repository=${REPOSITORY}"
     - "-title=Format markdown"
-    - "-body=Produced via: `prettier --write --proseWrap=always $(find -name '*.md' | grep -v vendor)`"
+    - "-body=Produced via: `prettier --write --prose-wrap=always $(find -name '*.md' | grep -v vendor | grep -v .github)`"
     env:
     - name: GITHUB_ACCESS_TOKEN
       valueFrom:
