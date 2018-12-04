@@ -11,7 +11,10 @@ spec:
   - name: goimports
     image: github.com/mattmoor/knobots/vendor/golang.org/x/tools/cmd/goimports
     command: ["/bin/bash", "-c"]
-    args: ["/ko-app -w $(find -name '*.go' | grep -v vendor)"]
+    args: ["mkdir -p ${GOPATH}/src/github.com/${ORGANIZATION}/ && ln -s /workspace ${GOPATH}/src/github.com/${ORGANIZATION}/${REPOSITORY}  && cd ${GOPATH}/src/github.com/${ORGANIZATION}/${REPOSITORY} && /ko-app -w $(find -name '*.go' | grep -v vendor)"]
+    env:
+    - name: GOPATH
+      value: /tmp/go
 
   - name: open-pull-request
     image: github.com/mattmoor/knobots/cmd/pr-builder
