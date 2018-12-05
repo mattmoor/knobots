@@ -1,16 +1,16 @@
 apiVersion: build.knative.dev/v1alpha1
 kind: Build
 metadata:
-  generateName: goimports-knative-docs
+  generateName: gotool-knative-serving
 spec:
   source:
     git:
-      url: https://github.com/knative/docs.git
+      url: https://github.com/knative/serving.git
       revision: master
   template:
-    name: goimports
+    name: gotool
     arguments:
     - name: ORGANIZATION
       value: knative
     - name: REPOSITORY
-      value: docs
+      value: serving

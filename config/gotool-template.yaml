@@ -1,0 +1,52 @@
+apiVersion: build.knative.dev/v1alpha1
+kind: BuildTemplate
+metadata:
+  name: gotool
+spec:
+  parameters:
+  - name: ORGANIZATION
+  - name: REPOSITORY
+
+  steps:
+  - name: gofmt
+    image: golang
+    command: ["/bin/bash", "-c"]
+    args: ["gofmt -s -w $(find -path './vendor' -prune -o -type f -name '*.go' -print)"]
+
+  - name: goimports
+    image: github.com/mattmoor/knobots/vendor/golang.org/x/tools/cmd/goimports
+    command: ["/bin/bash", "-c"]
+    args: ["mkdir -p ${GOPATH}/src/github.com/${ORGANIZATION}/ && ln -s /workspace ${GOPATH}/src/github.com/${ORGANIZATION}/${REPOSITORY}  && cd ${GOPATH}/src/github.com/${ORGANIZATION}/${REPOSITORY} && /ko-app -w $(find -name '*.go' | grep -v vendor)"]
+    env:
+    - name: GOPATH
+      value: /tmp/go
+
+  - name: open-pull-request
+    image: github.com/mattmoor/knobots/cmd/pr-builder
+    args:
+    - "-organization=${ORGANIZATION}"
+    - "-repository=${REPOSITORY}"
+    - "-title=golang format tools"
+    - "-body"
+    - |
+        Produced via:
+          `gofmt -s -w $(find -path './vendor' -prune -o -type f -name '*.go' -print))`
+          `goimports -w $(find -name '*.go' | grep -v vendor)`
+    env:
+    - name: GITHUB_ACCESS_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: github-comment-secret
+          key: accessToken
+    - name: GITHUB_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: github-comment-secret
+          key: username
+    # Inject the generated pod name so that we can use it as a
+    # pseudo-random branch name (and associate open PRs with
+    # build logs).
+    - name: POD_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name

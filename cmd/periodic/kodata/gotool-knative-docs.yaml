@@ -1,16 +1,16 @@
 apiVersion: build.knative.dev/v1alpha1
 kind: Build
 metadata:
-  generateName: gofmt-knative-pkg
+  generateName: gotool-knative-docs
 spec:
   source:
     git:
-      url: https://github.com/knative/pkg.git
+      url: https://github.com/knative/docs.git
       revision: master
   template:
-    name: gofmt
+    name: gotool
     arguments:
     - name: ORGANIZATION
       value: knative
     - name: REPOSITORY
-      value: pkg
+      value: docs

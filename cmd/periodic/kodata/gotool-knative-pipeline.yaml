@@ -1,16 +1,16 @@
 apiVersion: build.knative.dev/v1alpha1
 kind: Build
 metadata:
-  generateName: goimports-knative-eventing
+  generateName: gotool-knative-pipelines
 spec:
   source:
     git:
-      url: https://github.com/knative/eventing.git
+      url: https://github.com/knative/build-pipeline.git
       revision: master
   template:
-    name: goimports
+    name: gotool
     arguments:
     - name: ORGANIZATION
       value: knative
     - name: REPOSITORY
-      value: eventing
+      value: build-pipeline

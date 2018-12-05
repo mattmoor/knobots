@@ -1,16 +1,16 @@
 apiVersion: build.knative.dev/v1alpha1
 kind: Build
 metadata:
-  generateName: gofmt-knative-docs
+  generateName: gotool-knative-eventing
 spec:
   source:
     git:
-      url: https://github.com/knative/docs.git
+      url: https://github.com/knative/eventing.git
       revision: master
   template:
-    name: gofmt
+    name: gotool
     arguments:
     - name: ORGANIZATION
       value: knative
     - name: REPOSITORY
-      value: docs
+      value: eventing
