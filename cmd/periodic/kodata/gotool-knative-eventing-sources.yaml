@@ -1,0 +1,16 @@
+apiVersion: build.knative.dev/v1alpha1
+kind: Build
+metadata:
+  generateName: gotool-knative-eventing-sources
+spec:
+  source:
+    git:
+      url: https://github.com/knative/eventing-sources.git
+      revision: master
+  template:
+    name: gotool
+    arguments:
+    - name: ORGANIZATION
+      value: knative
+    - name: REPOSITORY
+      value: eventing-sources
