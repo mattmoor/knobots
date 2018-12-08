@@ -7,8 +7,7 @@ required = [
 
 [[constraint]]
   name = "golang.org/x/tools"
-  # https://github.com/golang/go/issues/29041
-  branch = "release-branch.go1.10"
+  revision = "4c874b978acba4ecd4a257d3bb8829dd5de17be8"
 
 [prune]
   go-tests = true

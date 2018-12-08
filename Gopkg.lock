@@ -410,16 +410,17 @@
   revision = "85acf8d2951cb2a3bde7632f9ff273ef0379bcbd"
 
 [[projects]]
-  branch = "release-branch.go1.10"
-  digest = "1:e2b04acfeb8492928c55f03ad2d3c84f3cfd9e6657cb9e1687d196f15a592d08"
+  digest = "1:fc590bb6883649daf0133b7785b860707f43bdbffcc726ba0a79fb002e8bab4e"
   name = "golang.org/x/tools"
   packages = [
     "cmd/goimports",
     "go/ast/astutil",
     "imports",
+    "internal/fastwalk",
+    "internal/gopathwalk",
   ]
   pruneopts = "NUT"
-  revision = "156d532d4f67148ceab07c3b59ed7fa13bdbf00c"
+  revision = "4c874b978acba4ecd4a257d3bb8829dd5de17be8"
 
 [[projects]]
   digest = "1:655acbef8faad33db29b6a35655341fb4a594e87e56635f05a3e70ed0bd7bd95"
