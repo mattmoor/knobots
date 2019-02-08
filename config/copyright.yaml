@@ -1,0 +1,32 @@
+apiVersion: eventing.knative.dev/v1alpha1
+kind: Subscription
+metadata:
+  name: copyright-subscription
+spec:
+  channel:
+    apiVersion: eventing.knative.dev/v1alpha1
+    kind: Channel
+    name: githubchannel
+  subscriber:
+    ref:
+      apiVersion: serving.knative.dev/v1alpha1
+      kind: Service
+      name: copyright-bot
+---
+apiVersion: serving.knative.dev/v1alpha1
+kind: Service
+metadata:
+  name: copyright-bot
+spec:
+  runLatest:
+    configuration:
+      revisionTemplate:
+        spec:
+          container:
+            image: github.com/mattmoor/knobots/cmd/copyright
+            env:
+            - name: GITHUB_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: github-comment-secret
+                  key: accessToken
