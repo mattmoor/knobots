@@ -50,8 +50,11 @@ func updateCopyrightYear(orig string) string {
 		return orig
 	}
 
-	return fmt.Sprintf("Copyright %d%s",
-		time.Now().Year(), orig[len("Copyright 2018"):])
+	return string(re.ReplaceAllFunc([]byte(orig), func(in []byte) []byte {
+		before := string(in)
+		return []byte(fmt.Sprintf("Copyright %d%s",
+			time.Now().Year(), before[len("Copyright 2018"):]))
+	}))
 }
 
 func HandlePullRequest(pre *github.PullRequestEvent) error {
