@@ -66,6 +66,15 @@ func HandlePullRequest(pre *github.PullRequestEvent) error {
 		return nil
 	}
 
+	// Only fire on a handful of "actions".
+	switch pre.GetAction() {
+	case "opened", "reopened", "synchronize":
+		// Fire on these.
+	default:
+		log.Printf("Skipping action: %s", pre.GetAction())
+		return nil
+	}
+
 	owner, repo, number := pre.Repo.Owner.GetLogin(), pre.Repo.GetName(), pre.GetNumber()
 
 	var comments []*github.DraftReviewComment
