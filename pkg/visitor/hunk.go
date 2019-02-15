@@ -28,7 +28,7 @@ func Hunks(owner, repo string, num int, v HunkCallback) error {
 				return nil
 			}
 		}
-		if lopt.Page == resp.NextPage {
+		if resp.NextPage == 0 {
 			break
 		}
 		lopt.Page = resp.NextPage

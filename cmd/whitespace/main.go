@@ -95,6 +95,15 @@ func HandlePullRequest(pre *github.PullRequestEvent) error {
 					offset++
 				}
 			}
+			offset--
+
+			// If the last offset is the first line in the file, and it looks
+			// like a path, then don't complain as this is very likely a symlink.
+			if offset == 1 {
+				if strings.HasPrefix(lastSeen, "+../") {
+					return visitor.Continue, nil
+				}
+			}
 
 			// Check if the last line was added, but wasn't a newline.
 			// This signifies that the file has a new line at the end of the file,
