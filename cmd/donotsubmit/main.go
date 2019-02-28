@@ -3,37 +3,44 @@ package main
 import (
 	"context"
 	"log"
-	"net/http"
 	"strings"
 
+	"github.com/cloudevents/sdk-go/pkg/cloudevents"
+	ceclient "github.com/cloudevents/sdk-go/pkg/cloudevents/client"
 	"github.com/google/go-github/github"
 	"sourcegraph.com/sourcegraph/go-diff/diff"
 
 	"github.com/mattmoor/knobots/pkg/botinfo"
 	"github.com/mattmoor/knobots/pkg/client"
 	"github.com/mattmoor/knobots/pkg/comment"
-	"github.com/mattmoor/knobots/pkg/handler"
 	"github.com/mattmoor/knobots/pkg/review"
 	"github.com/mattmoor/knobots/pkg/visitor"
 )
 
-func main() {
-	http.HandleFunc("/", Handler)
-	http.ListenAndServe(":8080", nil)
+const (
+	PullRequestEventType = "dev.knative.source.github.pull_request"
+)
+
+func Receive(event cloudevents.Event) {
+	// do something with event.Context and event.Data (via event.DataAs(foo)
+	if event.Context.GetType() == PullRequestEventType {
+		pr := &github.PullRequestEvent{}
+		if err := event.DataAs(pr); err != nil {
+			log.Printf("failed to parse pull request from cloudevent: %s", event)
+			return
+		}
+		if err := HandlePullRequest(pr); err != nil {
+			log.Printf("failed to handle pull request: %s", err.Error())
+		}
+	}
 }
 
-func Handler(w http.ResponseWriter, r *http.Request) {
-	event := handler.ParseGithubWebhook(w, r)
-	if event == nil {
-		return
+func main() {
+	ctx := context.Background()
+	if _, err := ceclient.StartHTTPReceiver(ctx, Receive); err != nil {
+		log.Fatal(err)
 	}
-
-	// The set of events here should line up with what is in
-	//   config/one-time/github-source.yaml
-	switch event := event.(type) {
-	case *github.PullRequestEvent:
-		handler.InternalError(w, event, HandlePullRequest(event))
-	}
+	<-ctx.Done()
 }
 
 var (
