@@ -23,7 +23,7 @@ const (
 
 func Receive(event cloudevents.Event) {
 	// do something with event.Context and event.Data (via event.DataAs(foo)
-	if event.Context.GetType() == PullRequestEventType {
+	if event.Type() == PullRequestEventType {
 		pr := &github.PullRequestEvent{}
 		if err := event.DataAs(pr); err != nil {
 			log.Printf("failed to parse pull request from cloudevent: %s", event)
