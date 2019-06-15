@@ -1,18 +1,16 @@
 apiVersion: build.knative.dev/v1alpha1
 kind: Build
 metadata:
-  generateName: misspell-knative-eventing
+  generateName: prettier-knative-sample-controller
 spec:
   source:
     git:
-      url: https://github.com/knative/eventing.git
+      url: https://github.com/knative/sample-controller.git
       revision: master
   template:
-    name: misspell
+    name: prettier
     arguments:
     - name: ORGANIZATION
       value: knative
     - name: REPOSITORY
-      value: eventing
-    - name: ASSIGNEE
-      value: n3wscott
+      value: sample-controller

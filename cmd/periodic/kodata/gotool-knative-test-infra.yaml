@@ -1,18 +1,18 @@
 apiVersion: build.knative.dev/v1alpha1
 kind: Build
 metadata:
-  generateName: misspell-knative-eventing
+  generateName: gotool-knative-test-infra
 spec:
   source:
     git:
-      url: https://github.com/knative/eventing.git
+      url: https://github.com/knative/test-infra.git
       revision: master
   template:
-    name: misspell
+    name: gotool
     arguments:
     - name: ORGANIZATION
       value: knative
     - name: REPOSITORY
-      value: eventing
+      value: test-infra
     - name: ASSIGNEE
-      value: n3wscott
+      value: adrcunha

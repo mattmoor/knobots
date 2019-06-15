@@ -1,16 +1,18 @@
 apiVersion: build.knative.dev/v1alpha1
 kind: Build
 metadata:
-  generateName: gotool-knative-pipelines
+  generateName: prettier-knative-test-infra
 spec:
   source:
     git:
-      url: https://github.com/knative/build-pipeline.git
+      url: https://github.com/knative/test-infra.git
       revision: master
   template:
-    name: gotool
+    name: prettier
     arguments:
     - name: ORGANIZATION
       value: knative
     - name: REPOSITORY
-      value: build-pipeline
+      value: test-infra
+    - name: ASSIGNEE
+      value: adrcunha

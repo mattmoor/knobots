@@ -1,11 +1,11 @@
 apiVersion: build.knative.dev/v1alpha1
 kind: Build
 metadata:
-  generateName: prettier-knative-eventing-sources
+  generateName: prettier-knative-eventing-contrib
 spec:
   source:
     git:
-      url: https://github.com/knative/eventing-sources.git
+      url: https://github.com/knative/eventing-contrib.git
       revision: master
   template:
     name: prettier
@@ -13,4 +13,6 @@ spec:
     - name: ORGANIZATION
       value: knative
     - name: REPOSITORY
-      value: eventing-sources
+      value: eventing-contrib
+    - name: ASSIGNEE
+      value: n3wscott

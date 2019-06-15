@@ -1,16 +1,18 @@
 apiVersion: build.knative.dev/v1alpha1
 kind: Build
 metadata:
-  generateName: misspell-ggcr
+  generateName: misspell-knative-test-infra
 spec:
   source:
     git:
-      url: https://github.com/google/go-containerregistry.git
+      url: https://github.com/knative/test-infra.git
       revision: master
   template:
     name: misspell
     arguments:
     - name: ORGANIZATION
-      value: google
+      value: knative
     - name: REPOSITORY
-      value: go-containerregistry
+      value: test-infra
+    - name: ASSIGNEE
+      value: adrcunha

@@ -1,18 +1,18 @@
 apiVersion: build.knative.dev/v1alpha1
 kind: Build
 metadata:
-  generateName: misspell-knative-eventing
+  generateName: gotool-gcp-cre-
 spec:
   source:
     git:
-      url: https://github.com/knative/eventing.git
+      url: https://github.com/GoogleCloudPlatform/cloud-run-events.git
       revision: master
   template:
-    name: misspell
+    name: gotool
     arguments:
     - name: ORGANIZATION
-      value: knative
+      value: GoogleCloudPlatform
     - name: REPOSITORY
-      value: eventing
+      value: cloud-run-events
     - name: ASSIGNEE
       value: n3wscott

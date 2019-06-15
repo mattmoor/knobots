@@ -1,24 +1,31 @@
 apiVersion: build.knative.dev/v1alpha1
 kind: BuildTemplate
 metadata:
-  name: gotool
+  name: dep-update
 spec:
   parameters:
   - name: ORGANIZATION
   - name: REPOSITORY
+  - name: DEPENDENCY
   - name: ASSIGNEE
     default: mattmoor
 
   steps:
-  - name: gofmt
-    image: golang
+  - name: dep
+    image: gcr.io/convoy-adapter/dep
     command: ["/bin/bash", "-c"]
-    args: ["gofmt -s -w $(find -path './vendor' -prune -o -type f -name '*.go' -print)"]
-
-  - name: goimports
-    image: github.com/mattmoor/knobots/vendor/golang.org/x/tools/cmd/goimports
-    command: ["/bin/bash", "-c"]
-    args: ["mkdir -p ${GOPATH}/src/github.com/${ORGANIZATION}/ && ln -s /workspace ${GOPATH}/src/github.com/${ORGANIZATION}/${REPOSITORY}  && cd ${GOPATH}/src/github.com/${ORGANIZATION}/${REPOSITORY} && /ko-app/goimports -w $(find -name '*.go' | grep -v vendor)"]
+    args:
+    - |
+      set -e
+      set -x
+      mkdir -p ${GOPATH}/src/github.com/${ORGANIZATION}/
+      ln -s /workspace ${GOPATH}/src/github.com/${ORGANIZATION}/${REPOSITORY}
+      cd ${GOPATH}/src/github.com/${ORGANIZATION}/${REPOSITORY}
+      go get -u github.com/google/licenseclassifier
+      dep ensure -update ${DEPENDENCY}
+      # Sometimes we "fix up" ./vendor, so run this for good measure.
+      ./hack/update-deps.sh
+      # TODO(mattmoor): Consider this ./hack/update-codegen.sh
     env:
     - name: GOPATH
       value: /tmp/go
@@ -28,12 +35,11 @@ spec:
     args:
     - "-organization=${ORGANIZATION}"
     - "-repository=${REPOSITORY}"
-    - "-title=golang format tools"
+    - "-title=Update ${DEPENDENCY} dependency"
     - "-body"
     - |
         Produced via:
-          `gofmt -s -w $(find -path './vendor' -prune -o -type f -name '*.go' -print))`
-          `goimports -w $(find -name '*.go' | grep -v vendor)`
+          `dep ensure -update ${DEPENDENCY}`
         /assign @${ASSIGNEE}
     env:
     - name: GITHUB_ACCESS_TOKEN

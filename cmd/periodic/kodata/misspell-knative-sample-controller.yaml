@@ -1,16 +1,16 @@
 apiVersion: build.knative.dev/v1alpha1
 kind: Build
 metadata:
-  generateName: prettier-knative-pipelines
+  generateName: misspell-knative-sample-controller
 spec:
   source:
     git:
-      url: https://github.com/knative/build-pipeline.git
+      url: https://github.com/knative/sample-controller.git
       revision: master
   template:
-    name: prettier
+    name: misspell
     arguments:
     - name: ORGANIZATION
       value: knative
     - name: REPOSITORY
-      value: build-pipeline
+      value: sample-controller

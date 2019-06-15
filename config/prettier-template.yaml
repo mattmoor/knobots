@@ -6,6 +6,8 @@ spec:
   parameters:
   - name: ORGANIZATION
   - name: REPOSITORY
+  - name: ASSIGNEE
+    default: mattmoor
 
   steps:
   - name: prettier
@@ -20,7 +22,11 @@ spec:
     - "-organization=${ORGANIZATION}"
     - "-repository=${REPOSITORY}"
     - "-title=Format markdown"
-    - "-body=Produced via: `prettier --write --prose-wrap=always $(find -name '*.md' | grep -v vendor | grep -v .github)`"
+    - "-body"
+    - |
+        Produced via:
+          `prettier --write --prose-wrap=always $(find -name '*.md' | grep -v vendor | grep -v .github)`
+        /assign @${ASSIGNEE}
     env:
     - name: GITHUB_ACCESS_TOKEN
       valueFrom:

@@ -6,13 +6,15 @@ spec:
   parameters:
   - name: ORGANIZATION
   - name: REPOSITORY
+  - name: ASSIGNEE
+    default: mattmoor
 
   steps:
   - name: misspell
     image: github.com/mattmoor/knobots/vendor/github.com/client9/misspell/cmd/misspell
     # We override the entrypoint of the ko image to embed shell functionality.
     command: ["/bin/bash", "-c"]
-    args: ["/ko-app -w $(find -name '*.go' | grep -v vendor)"]
+    args: ["/ko-app/misspell -w $(find -name '*.go' | grep -v vendor)"]
 
   - name: open-pull-request
     image: github.com/mattmoor/knobots/cmd/pr-builder
@@ -20,7 +22,11 @@ spec:
     - "-organization=${ORGANIZATION}"
     - "-repository=${REPOSITORY}"
     - "-title=Fix spelling errors"
-    - "-body=Produced via: `github.com/client9/misspell`"
+    - "-body"
+    - |
+        Produced via:
+          `github.com/client9/misspell`
+        /assign @${ASSIGNEE}
     env:
     - name: GITHUB_ACCESS_TOKEN
       valueFrom:

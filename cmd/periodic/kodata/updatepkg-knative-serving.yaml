@@ -1,18 +1,18 @@
 apiVersion: build.knative.dev/v1alpha1
 kind: Build
 metadata:
-  generateName: misspell-knative-eventing
+  generateName: update-pkg-knative-serving-
 spec:
   source:
     git:
-      url: https://github.com/knative/eventing.git
+      url: https://github.com/knative/serving.git
       revision: master
   template:
-    name: misspell
+    name: dep-update
     arguments:
     - name: ORGANIZATION
       value: knative
     - name: REPOSITORY
-      value: eventing
-    - name: ASSIGNEE
-      value: n3wscott
+      value: serving
+    - name: DEPENDENCY
+      value: github.com/knative/pkg

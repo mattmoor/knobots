@@ -14,3 +14,5 @@ spec:
       value: knative
     - name: REPOSITORY
       value: eventing
+    - name: ASSIGNEE
+      value: n3wscott
