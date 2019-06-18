@@ -21,8 +21,11 @@ spec:
       mkdir -p ${GOPATH}/src/github.com/${ORGANIZATION}/
       ln -s /workspace ${GOPATH}/src/github.com/${ORGANIZATION}/${REPOSITORY}
       cd ${GOPATH}/src/github.com/${ORGANIZATION}/${REPOSITORY}
-      go get -u github.com/google/licenseclassifier
+      export REPO_ROOT_DIR=${GOPATH}/src/github.com/${ORGANIZATION}/${REPOSITORY}
       dep ensure -update ${DEPENDENCY}
+      go get -u github.com/google/licenseclassifier
+      go get -u github.com/knative/test-infra/tools/dep-collector
+      export PATH=${PATH}:${GOPATH}/bin
       # Sometimes we "fix up" ./vendor, so run this for good measure.
       ./hack/update-deps.sh
       # TODO(mattmoor): Consider this ./hack/update-codegen.sh
