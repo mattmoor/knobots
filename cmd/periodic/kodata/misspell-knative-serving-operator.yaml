@@ -1,0 +1,16 @@
+apiVersion: build.knative.dev/v1alpha1
+kind: Build
+metadata:
+  generateName: misspell-knative-serving-operator
+spec:
+  source:
+    git:
+      url: https://github.com/knative/serving-operator.git
+      revision: master
+  template:
+    name: misspell
+    arguments:
+    - name: ORGANIZATION
+      value: knative
+    - name: REPOSITORY
+      value: serving-operator
