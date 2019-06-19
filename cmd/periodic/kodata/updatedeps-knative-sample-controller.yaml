@@ -1,7 +1,7 @@
 apiVersion: build.knative.dev/v1alpha1
 kind: Build
 metadata:
-  generateName: update-test-infra-knative-sample-controller-
+  generateName: update-deps-knative-sample-controller-
 spec:
   source:
     git:
@@ -14,7 +14,7 @@ spec:
       value: knative
     - name: REPOSITORY
       value: sample-controller
-    - name: DEPENDENCY
-      value: github.com/knative/test-infra
+    - name: DEPENDENCIES
+      value: github.com/knative/test-infra github.com/knative/pkg
     - name: ASSIGNEE
-      value: adrcunha
+      value: mattmoor

@@ -1,11 +1,11 @@
 apiVersion: build.knative.dev/v1alpha1
 kind: Build
 metadata:
-  generateName: update-test-infra-knative-pkg-
+  generateName: update-deps-knative-serving-
 spec:
   source:
     git:
-      url: https://github.com/knative/pkg.git
+      url: https://github.com/knative/serving.git
       revision: master
   template:
     name: dep-update
@@ -13,8 +13,8 @@ spec:
     - name: ORGANIZATION
       value: knative
     - name: REPOSITORY
-      value: pkg
-    - name: DEPENDENCY
-      value: github.com/knative/test-infra
+      value: serving
+    - name: DEPENDENCIES
+      value: github.com/knative/test-infra github.com/knative/pkg
     - name: ASSIGNEE
-      value: adrcunha
+      value: mattmoor

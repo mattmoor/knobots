@@ -6,7 +6,7 @@ spec:
   parameters:
   - name: ORGANIZATION
   - name: REPOSITORY
-  - name: DEPENDENCY
+  - name: DEPENDENCIES
   - name: ASSIGNEE
     default: mattmoor
 
@@ -22,13 +22,14 @@ spec:
       ln -s /workspace ${GOPATH}/src/github.com/${ORGANIZATION}/${REPOSITORY}
       cd ${GOPATH}/src/github.com/${ORGANIZATION}/${REPOSITORY}
       export REPO_ROOT_DIR=${GOPATH}/src/github.com/${ORGANIZATION}/${REPOSITORY}
-      dep ensure -update ${DEPENDENCY}
+      dep ensure -update ${DEPENDENCIES}
       go get -u github.com/google/licenseclassifier
       go get -u github.com/knative/test-infra/tools/dep-collector
       export PATH=${PATH}:${GOPATH}/bin
       # Sometimes we "fix up" ./vendor, so run this for good measure.
       ./hack/update-deps.sh
-      # TODO(mattmoor): Consider this ./hack/update-codegen.sh
+      # We may pull in code-generator updates.
+      ./hack/update-codegen.sh
     env:
     - name: GOPATH
       value: /tmp/go
@@ -38,11 +39,11 @@ spec:
     args:
     - "-organization=${ORGANIZATION}"
     - "-repository=${REPOSITORY}"
-    - "-title=Update ${DEPENDENCY} dependency"
+    - "-title=Auto-update dependencies"
     - "-body"
     - |
         Produced via:
-          `dep ensure -update ${DEPENDENCY}`
+          `dep ensure -update ${DEPENDENCIES}`
         /assign @${ASSIGNEE}
     env:
     - name: GITHUB_ACCESS_TOKEN

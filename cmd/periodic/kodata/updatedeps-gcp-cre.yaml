@@ -1,0 +1,20 @@
+apiVersion: build.knative.dev/v1alpha1
+kind: Build
+metadata:
+  generateName: update-deps-gcp-cre-
+spec:
+  source:
+    git:
+      url: https://github.com/GoogleCloudPlatform/cloud-run-events.git
+      revision: master
+  template:
+    name: dep-update
+    arguments:
+    - name: ORGANIZATION
+      value: GoogleCloudPlatform
+    - name: REPOSITORY
+      value: cloud-run-events
+    - name: DEPENDENCIES
+      value: github.com/knative/test-infra github.com/knative/pkg
+    - name: ASSIGNEE
+      value: n3wscott
