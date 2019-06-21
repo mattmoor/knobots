@@ -44,14 +44,10 @@ func main() {
 		log.Fatalf("Error opening /workspace: %v", err)
 	}
 
-	// First, add any unstaged changes (from a prior step) to the worktree.
+	// First, build the worktree.
 	wt, err := r.Worktree()
 	if err != nil {
 		log.Fatalf("Error fetching worktree: %v", err)
-	}
-	_, err = wt.Add(".")
-	if err != nil {
-		log.Fatalf("Error staging changed files to worktree: %v", err)
 	}
 
 	// Check the status of the worktree, and if there aren't any changes
@@ -66,6 +62,13 @@ func main() {
 	}
 	// Display any changed we do find: `git status --porcelain`
 	log.Printf("%v", st)
+
+	for path := range st {
+		_, err = wt.Add(path)
+		if err != nil {
+			log.Fatalf("Error staging %q: %v", path, err)
+		}
+	}
 
 	commitMessage := *title + "\n\n" + *body
 
