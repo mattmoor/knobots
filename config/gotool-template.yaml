@@ -18,7 +18,22 @@ spec:
   - name: goimports
     image: github.com/mattmoor/knobots/vendor/golang.org/x/tools/cmd/goimports
     command: ["/bin/bash", "-c"]
-    args: ["mkdir -p ${GOPATH}/src/github.com/${ORGANIZATION}/ && ln -s /workspace ${GOPATH}/src/github.com/${ORGANIZATION}/${REPOSITORY}  && cd ${GOPATH}/src/github.com/${ORGANIZATION}/${REPOSITORY} && /ko-app/goimports -w $(find -name '*.go' | grep -v vendor)"]
+    args:
+    - |
+      set -e
+      set -x
+      export PARENT_DIR=${GOPATH}/src/github.com/${ORGANIZATION}
+      if [ "${REPOSITORY}" == "pkg" ]
+      then
+        export PARENT_DIR=${GOPATH}/src/knative.dev
+      elif [ "${REPOSITORY}" == "sample-controller" ]
+      then
+        export PARENT_DIR=${GOPATH}/src/knative.dev
+      fi
+      mkdir -p ${PARENT_DIR}
+      ln -s /workspace ${PARENT_DIR}/${REPOSITORY}
+      cd ${PARENT_DIR}/${REPOSITORY}
+      /ko-app/goimports -w $(find -name '*.go' | grep -v vendor)
     env:
     - name: GOPATH
       value: /tmp/go

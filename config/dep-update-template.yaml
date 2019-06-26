@@ -18,10 +18,18 @@ spec:
     - |
       set -e
       set -x
-      mkdir -p ${GOPATH}/src/github.com/${ORGANIZATION}/
-      ln -s /workspace ${GOPATH}/src/github.com/${ORGANIZATION}/${REPOSITORY}
-      cd ${GOPATH}/src/github.com/${ORGANIZATION}/${REPOSITORY}
-      export REPO_ROOT_DIR=${GOPATH}/src/github.com/${ORGANIZATION}/${REPOSITORY}
+      export PARENT_DIR=${GOPATH}/src/github.com/${ORGANIZATION}
+      if [ "${REPOSITORY}" == "pkg" ]
+      then
+        export PARENT_DIR=${GOPATH}/src/knative.dev
+      elif [ "${REPOSITORY}" == "sample-controller" ]
+      then
+        export PARENT_DIR=${GOPATH}/src/knative.dev
+      fi
+      mkdir -p ${PARENT_DIR}
+      ln -s /workspace ${PARENT_DIR}/${REPOSITORY}
+      cd ${PARENT_DIR}/${REPOSITORY}
+      export REPO_ROOT_DIR=${PARENT_DIR}/${REPOSITORY}
       dep ensure -update ${DEPENDENCIES}
       go get -u github.com/google/licenseclassifier
       go get -u github.com/knative/test-infra/tools/dep-collector
