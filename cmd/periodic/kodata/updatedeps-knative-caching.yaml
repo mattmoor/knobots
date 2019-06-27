@@ -1,0 +1,20 @@
+apiVersion: build.knative.dev/v1alpha1
+kind: Build
+metadata:
+  generateName: update-deps-knative-caching-
+spec:
+  source:
+    git:
+      url: https://github.com/knative/caching.git
+      revision: master
+  template:
+    name: dep-update
+    arguments:
+    - name: ORGANIZATION
+      value: knative
+    - name: REPOSITORY
+      value: caching
+    - name: DEPENDENCIES
+      value: github.com/knative/test-infra knative.dev/pkg
+    - name: ASSIGNEE
+      value: mattmoor
