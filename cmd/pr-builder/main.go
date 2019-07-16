@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path"
 	"time"
 
 	"github.com/google/go-github/github"
@@ -63,11 +64,19 @@ func main() {
 	// Display any changed we do find: `git status --porcelain`
 	log.Printf("%v", st)
 
-	for path := range st {
-		_, err = wt.Add(path)
-		if err != nil {
-			log.Fatalf("Error staging %q: %v", path, err)
+	nonGopkgCount := 0
+	for p := range st {
+		if path.Base(p) != "Gopkg.lock" {
+			nonGopkgCount++
 		}
+		_, err = wt.Add(p)
+		if err != nil {
+			log.Fatalf("Error staging %q: %v", p, err)
+		}
+	}
+	if nonGopkgCount == 0 {
+		log.Println("Only Gopkg.lock files changed (skipping PR).")
+		return
 	}
 
 	commitMessage := *title + "\n\n" + *body
