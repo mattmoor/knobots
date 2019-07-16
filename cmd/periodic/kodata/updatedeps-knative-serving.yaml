@@ -15,6 +15,6 @@ spec:
     - name: REPOSITORY
       value: serving
     - name: DEPENDENCIES
-      value: github.com/knative/test-infra knative.dev/pkg
+      value: github.com/knative/test-infra knative.dev/pkg knative.dev/caching
     - name: ASSIGNEE
       value: mattmoor
