@@ -15,6 +15,6 @@ spec:
     - name: REPOSITORY
       value: build
     - name: DEPENDENCIES
-      value: github.com/knative/test-infra
+      value: knative.dev/test-infra
     - name: ASSIGNEE
       value: mattmoor

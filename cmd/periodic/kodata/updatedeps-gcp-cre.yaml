@@ -15,6 +15,6 @@ spec:
     - name: REPOSITORY
       value: cloud-run-events
     - name: DEPENDENCIES
-      value: github.com/knative/test-infra knative.dev/pkg
+      value: knative.dev/test-infra knative.dev/pkg
     - name: ASSIGNEE
       value: n3wscott
