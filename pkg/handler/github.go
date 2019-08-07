@@ -21,7 +21,7 @@ func ParseGithubWebhook(w http.ResponseWriter, r *http.Request) interface{} {
 	//     eventType := github.WebHookType(r)
 	// https://github.com/knative/eventing-sources/issues/120
 	// HACK HACK HACK
-	eventType := strings.Split(r.Header.Get("ce-eventtype"), ".")[4]
+	eventType := strings.Split(r.Header.Get("ce-type"), ".")[4]
 
 	event, err := github.ParseWebHook(eventType, payload)
 	if err != nil {
