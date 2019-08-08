@@ -5,15 +5,15 @@ metadata:
 spec:
   source:
     git:
-      url: https://github.com/GoogleCloudPlatform/cloud-run-events.git
+      url: https://github.com/google/knative-gcp.git
       revision: master
   template:
     name: dep-update
     arguments:
     - name: ORGANIZATION
-      value: GoogleCloudPlatform
+      value: google
     - name: REPOSITORY
-      value: cloud-run-events
+      value: knative-gcp
     - name: DEPENDENCIES
       value: knative.dev/test-infra knative.dev/pkg
     - name: ASSIGNEE

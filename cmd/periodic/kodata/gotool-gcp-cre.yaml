@@ -5,14 +5,14 @@ metadata:
 spec:
   source:
     git:
-      url: https://github.com/GoogleCloudPlatform/cloud-run-events.git
+      url: https://github.com/google/knative-gcp.git
       revision: master
   template:
     name: gotool
     arguments:
     - name: ORGANIZATION
-      value: GoogleCloudPlatform
+      value: google
     - name: REPOSITORY
-      value: cloud-run-events
+      value: knative-gcp
     - name: ASSIGNEE
       value: n3wscott

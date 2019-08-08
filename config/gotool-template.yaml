@@ -29,7 +29,13 @@ spec:
       elif [ "${REPOSITORY}" == "sample-controller" ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
+      elif [ "${REPOSITORY}" == "test-infra" ]
+      then
+        export PARENT_DIR=${GOPATH}/src/knative.dev
       elif [ "${REPOSITORY}" == serving ]
+      then
+        export PARENT_DIR=${GOPATH}/src/knative.dev
+      elif [ "${REPOSITORY}" == eventing ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
       elif [ "${REPOSITORY}" == "caching" ]
