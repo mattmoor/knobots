@@ -26,9 +26,7 @@ spec:
       name: github-hook-secret
       key: secretToken
 
-  # TODO(mattmoor): Why can't this simply be my Service?
-  # Then I could do without the Channel/Subscription...
   sink:
     apiVersion: eventing.knative.dev/v1alpha1
-    kind: Channel
-    name: githubchannel
+    kind: Broker
+    name: default

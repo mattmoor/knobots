@@ -9,6 +9,16 @@ import (
 	"github.com/google/go-github/github"
 )
 
+func ParseGithubData(payload []byte, eventType string) (interface{}, error) {
+	// TODO(mattmoor): This should be:
+	//     eventType := github.WebHookType(r)
+	// https://github.com/knative/eventing-sources/issues/120
+	// HACK HACK HACK
+	eventType = strings.Split(eventType, ".")[4]
+
+	return github.ParseWebHook(eventType, payload)
+}
+
 func ParseGithubWebhook(w http.ResponseWriter, r *http.Request) interface{} {
 	payload, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -17,17 +27,11 @@ func ParseGithubWebhook(w http.ResponseWriter, r *http.Request) interface{} {
 		return nil
 	}
 
-	// TODO(mattmoor): This should be:
-	//     eventType := github.WebHookType(r)
-	// https://github.com/knative/eventing-sources/issues/120
-	// HACK HACK HACK
-	eventType := strings.Split(r.Header.Get("ce-type"), ".")[4]
-
-	event, err := github.ParseWebHook(eventType, payload)
+	x, err := ParseGithubData(payload, r.Header.Get("ce-type"))
 	if err != nil {
 		log.Printf("ERROR: unable to parse webhook: %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return nil
 	}
-	return event
+	return x
 }

@@ -1,12 +1,27 @@
 apiVersion: eventing.knative.dev/v1alpha1
-kind: Subscription
+kind: Trigger
 metadata:
-  name: triage-subscription
+  name: triage-pr-trigger
+  namespace: default
 spec:
-  channel:
-    apiVersion: eventing.knative.dev/v1alpha1
-    kind: Channel
-    name: githubchannel
+  filter:
+    sourceAndType:
+      type: dev.knative.source.github.pull_request
+  subscriber:
+    ref:
+      apiVersion: serving.knative.dev/v1alpha1
+      kind: Service
+      name: triage-bot
+---
+apiVersion: eventing.knative.dev/v1alpha1
+kind: Trigger
+metadata:
+  name: triage-issues-trigger
+  namespace: default
+spec:
+  filter:
+    sourceAndType:
+      type: dev.knative.source.github.issues
   subscriber:
     ref:
       apiVersion: serving.knative.dev/v1alpha1
@@ -18,15 +33,13 @@ kind: Service
 metadata:
   name: triage-bot
 spec:
-  runLatest:
-    configuration:
-      revisionTemplate:
-        spec:
-          container:
-            image: github.com/mattmoor/knobots/cmd/triage
-            env:
-            - name: GITHUB_ACCESS_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: github-comment-secret
-                  key: accessToken
+  template:
+    spec:
+      containers:
+      - image: github.com/mattmoor/knobots/cmd/triage
+        env:
+        - name: GITHUB_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: github-comment-secret
+              key: accessToken

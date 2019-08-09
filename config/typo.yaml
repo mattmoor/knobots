@@ -1,12 +1,12 @@
 apiVersion: eventing.knative.dev/v1alpha1
-kind: Subscription
+kind: Trigger
 metadata:
-  name: typo-subscription
+  name: typo-trigger
+  namespace: default
 spec:
-  channel:
-    apiVersion: eventing.knative.dev/v1alpha1
-    kind: Channel
-    name: githubchannel
+  filter:
+    sourceAndType:
+      type: dev.knative.source.github.pull_request
   subscriber:
     ref:
       apiVersion: serving.knative.dev/v1alpha1
@@ -18,15 +18,13 @@ kind: Service
 metadata:
   name: typo-bot
 spec:
-  runLatest:
-    configuration:
-      revisionTemplate:
-        spec:
-          container:
-            image: github.com/mattmoor/knobots/cmd/typo
-            env:
-            - name: GITHUB_ACCESS_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: github-comment-secret
-                  key: accessToken
+  template:
+    spec:
+      containers:
+      - image: github.com/mattmoor/knobots/cmd/typo
+        env:
+        - name: GITHUB_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: github-comment-secret
+              key: accessToken

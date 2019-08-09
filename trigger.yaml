@@ -1,0 +1,24 @@
+apiVersion: eventing.knative.dev/v1alpha1
+kind: Trigger
+metadata:
+  name: my-service-trigger
+  namespace: default
+spec:
+  filter:
+    sourceAndType:
+      type: dev.knative.source.github.pull_request
+  subscriber:
+    ref:
+      apiVersion: serving.knative.dev/v1alpha1
+      kind: Service
+      name: my-service
+---
+apiVersion: serving.knative.dev/v1alpha1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  template:
+    spec:
+      containers:
+      - image: github.com/mattmoor/knobots/cmd/basic-cloud-event
