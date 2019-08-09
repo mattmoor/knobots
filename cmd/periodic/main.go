@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
 	"github.com/ghodss/yaml"
 	buildv1alpha1 "github.com/knative/build/pkg/apis/build/v1alpha1"
 	buildclientset "github.com/knative/build/pkg/client/clientset/versioned"
@@ -29,6 +31,12 @@ func main() {
 	buildClient, err := buildclientset.NewForConfig(cfg)
 	if err != nil {
 		log.Fatalf("Error building Build clientset: %v", err)
+	}
+
+	err = buildClient.BuildV1alpha1().Builds("default").DeleteCollection(
+		&metav1.DeleteOptions{}, metav1.ListOptions{})
+	if err != nil {
+		log.Fatalf("Error cleaning prior builds: %v", err)
 	}
 
 	err = filepath.Walk(os.Getenv("KO_DATA_PATH"),

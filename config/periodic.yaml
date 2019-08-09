@@ -5,7 +5,7 @@ metadata:
 rules:
   - apiGroups: ["build.knative.dev"]
     resources: ["builds"]
-    verbs: ["get", "list", "create", "update", "delete", "patch", "watch"]
+    verbs: ["get", "list", "create", "update", "delete", "deletecollection", "patch", "watch"]
 ---
 apiVersion: v1
 kind: ServiceAccount
