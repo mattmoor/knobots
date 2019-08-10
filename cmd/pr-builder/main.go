@@ -17,14 +17,16 @@ import (
 	"gopkg.in/src-d/go-git.v4/plumbing/transport/http"
 
 	"github.com/mattmoor/knobots/pkg/client"
+	"github.com/mattmoor/knobots/pkg/comment"
 )
 
 var (
 	username = os.Getenv("GITHUB_USERNAME")
 	password = os.Getenv("GITHUB_ACCESS_TOKEN")
 
-	owner = flag.String("organization", "", "The Github organization to which we're sending a PR")
-	repo  = flag.String("repository", "", "The Github repository to which we're sending a PR")
+	owner  = flag.String("organization", "", "The Github organization to which we're sending a PR")
+	repo   = flag.String("repository", "", "The Github repository to which we're sending a PR")
+	branch = flag.String("branch", "master", "The branch we are building a PR against.")
 
 	// TODO(mattmoor): Figure out how to dodge CLA bot...
 	signature = &object.Signature{
@@ -136,19 +138,54 @@ func main() {
 
 	// Head has the form source-owner:branch, per the Github API docs.
 	head := fmt.Sprintf("%s:%s", username, branchName)
-	master := "master"
+
+	err = cleanupOlderPRs(*title, *owner, *repo)
+	if err != nil {
+		log.Fatalf("Error cleaning up PRs: %v", err)
+	}
 
 	pr, _, err := ghc.PullRequests.Create(ctx, *owner, *repo, &github.NewPullRequest{
 		Title: title,
-		// TODO(mattmoor): Consider injecting signature, but comment.WithSignature
-		// only works within the context of a Knative Service.
-		Body: body,
+		// Inject a signature into the body that will help us clean up matching older PRs.
+		Body: comment.WithSignature(*title, *body),
 		Head: &head,
-		Base: &master,
+		Base: branch,
 	})
 	if err != nil {
 		log.Fatalf("Error creating PR: %v", err)
 	}
 
 	log.Printf("Created PR: #%d", pr.GetNumber())
+}
+
+func cleanupOlderPRs(name, owner, repo string) error {
+	ctx := context.Background()
+	ghc := client.New(ctx)
+
+	closed := "closed"
+	lopt := &github.PullRequestListOptions{
+		Base: *branch,
+	}
+	for {
+		prs, resp, err := ghc.PullRequests.List(ctx, owner, repo, lopt)
+		if err != nil {
+			return err
+		}
+		for _, pr := range prs {
+			if comment.HasSignature(name, pr.GetBody()) {
+				_, _, err := ghc.PullRequests.Edit(ctx, owner, repo, pr.GetNumber(), &github.PullRequest{
+					State: &closed,
+				})
+				if err != nil {
+					return err
+				}
+			}
+		}
+		if lopt.Page == resp.NextPage {
+			break
+		}
+		lopt.Page = resp.NextPage
+	}
+
+	return nil
 }

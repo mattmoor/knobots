@@ -1,22 +1,20 @@
 apiVersion: build.knative.dev/v1alpha1
 kind: BuildTemplate
 metadata:
-  name: gotool
+  name: dep-update
 spec:
   parameters:
   - name: ORGANIZATION
   - name: REPOSITORY
+  - name: DEPENDENCIES
+  - name: BRANCH
+    default: master
   - name: ASSIGNEE
     default: mattmoor
 
   steps:
-  - name: gofmt
-    image: golang
-    command: ["/bin/bash", "-c"]
-    args: ["gofmt -s -w $(find -path './vendor' -prune -o -type f -name '*.go' -print)"]
-
-  - name: goimports
-    image: github.com/mattmoor/knobots/vendor/golang.org/x/tools/cmd/goimports
+  - name: dep
+    image: gcr.io/convoy-adapter/dep
     command: ["/bin/bash", "-c"]
     args:
     - |
@@ -45,7 +43,15 @@ spec:
       mkdir -p ${PARENT_DIR}
       ln -s /workspace ${PARENT_DIR}/${REPOSITORY}
       cd ${PARENT_DIR}/${REPOSITORY}
-      /ko-app/goimports -w $(find -name '*.go' | grep -v vendor)
+      export REPO_ROOT_DIR=${PARENT_DIR}/${REPOSITORY}
+      dep ensure -update ${DEPENDENCIES}
+      go get -u github.com/google/licenseclassifier
+      go get -u github.com/knative/test-infra/tools/dep-collector
+      export PATH=${PATH}:${GOPATH}/bin
+      # Sometimes we "fix up" ./vendor, so run this for good measure.
+      ./hack/update-deps.sh
+      # We may pull in code-generator updates.
+      ./hack/update-codegen.sh
     env:
     - name: GOPATH
       value: /tmp/go
@@ -55,12 +61,12 @@ spec:
     args:
     - "-organization=${ORGANIZATION}"
     - "-repository=${REPOSITORY}"
-    - "-title=golang format tools"
+    - "-title=Auto-update dependencies"
+    - "-branch=${BRANCH}"
     - "-body"
     - |
         Produced via:
-          `gofmt -s -w $(find -path './vendor' -prune -o -type f -name '*.go' -print))`
-          `goimports -w $(find -name '*.go' | grep -v vendor)`
+          `dep ensure -update ${DEPENDENCIES}`
         /assign @${ASSIGNEE}
     env:
     - name: GITHUB_ACCESS_TOKEN

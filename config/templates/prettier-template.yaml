@@ -1,31 +1,34 @@
 apiVersion: build.knative.dev/v1alpha1
 kind: BuildTemplate
 metadata:
-  name: misspell
+  name: prettier
 spec:
   parameters:
   - name: ORGANIZATION
   - name: REPOSITORY
+  - name: BRANCH
+    default: master
   - name: ASSIGNEE
     default: mattmoor
 
   steps:
-  - name: misspell
-    image: github.com/mattmoor/knobots/vendor/github.com/client9/misspell/cmd/misspell
+  - name: prettier
+    image: gcr.io/convoy-adapter/prettier
     # We override the entrypoint of the ko image to embed shell functionality.
-    command: ["/bin/bash", "-c"]
-    args: ["/ko-app/misspell -w $(find -name '*.go' | grep -v vendor)"]
+    command: ["/bin/sh", "-c"]
+    args: ["prettier --write --prose-wrap=always $(find -name '*.md' | grep -v vendor | grep -v .github)"]
 
   - name: open-pull-request
     image: github.com/mattmoor/knobots/cmd/pr-builder
     args:
     - "-organization=${ORGANIZATION}"
     - "-repository=${REPOSITORY}"
-    - "-title=Fix spelling errors"
+    - "-title=Format markdown"
+    - "-branch=${BRANCH}"
     - "-body"
     - |
         Produced via:
-          `github.com/client9/misspell`
+          `prettier --write --prose-wrap=always $(find -name '*.md' | grep -v vendor | grep -v .github)`
         /assign @${ASSIGNEE}
     env:
     - name: GITHUB_ACCESS_TOKEN
