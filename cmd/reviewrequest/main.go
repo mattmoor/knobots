@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/mattmoor/knobots/pkg/donotsubmit"
 	"github.com/mattmoor/knobots/pkg/handler"
+	"github.com/mattmoor/knobots/pkg/reviewrequest"
 )
 
 func main() {
-	handler.Main(donotsubmit.New())
+	handler.Main(reviewrequest.New())
 }

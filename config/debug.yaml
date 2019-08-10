@@ -1,29 +1,31 @@
-apiVersion: eventing.knative.dev/v1alpha1
-kind: Trigger
-metadata:
-  name: debug-trigger
-  namespace: default
-spec:
-  filter:
-    sourceAndType: {}
-  subscriber:
-    ref:
-      apiVersion: serving.knative.dev/v1alpha1
-      kind: Service
-      name: debug-bot
----
-apiVersion: serving.knative.dev/v1alpha1
-kind: Service
-metadata:
-  name: debug-bot
-spec:
-  template:
-    spec:
-      containers:
-      - image: github.com/mattmoor/knobots/cmd/debug
-        env:
-        - name: GITHUB_ACCESS_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: github-comment-secret
-              key: accessToken
+# apiVersion: eventing.knative.dev/v1alpha1
+# kind: Trigger
+# metadata:
+#   name: debug-trigger
+#   namespace: default
+# spec:
+#   filter:
+#     sourceAndType: {}
+#   subscriber:
+#     ref:
+#       apiVersion: serving.knative.dev/v1alpha1
+#       kind: Service
+#       name: debug-bot
+# ---
+# apiVersion: serving.knative.dev/v1alpha1
+# kind: Service
+# metadata:
+#   name: debug-bot
+  # labels:
+  #   serving.knative.dev/visibility: cluster-local
+# spec:
+#   template:
+#     spec:
+#       containers:
+#       - image: github.com/mattmoor/knobots/cmd/debug
+#         env:
+#         - name: GITHUB_ACCESS_TOKEN
+#           valueFrom:
+#             secretKeyRef:
+#               name: github-comment-secret
+#               key: accessToken

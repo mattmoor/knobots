@@ -11,14 +11,14 @@ import (
 
 var Comment = "COMMENT"
 
-func Create(owner, repo string, number int, comments []*github.DraftReviewComment) error {
+func Create(name, owner, repo string, number int, comments []*github.DraftReviewComment) error {
 	ctx := context.Background()
 	ghc := client.New(ctx)
 
 	_, _, err := ghc.PullRequests.CreateReview(ctx, owner, repo, number,
 		&github.PullRequestReviewRequest{
 			Event:    &Comment,
-			Body:     comment.WithSignature(""),
+			Body:     comment.WithSignature(name, ""),
 			Comments: comments,
 		})
 	return err

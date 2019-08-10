@@ -1,32 +1,34 @@
 apiVersion: eventing.knative.dev/v1alpha1
 kind: Trigger
 metadata:
-  name: typo-trigger
+  name: commitstatus-trigger
   namespace: default
 spec:
   filter:
     sourceAndType:
-      type: dev.mattmoor.knobots.reviewrequest
+      type: dev.mattmoor.knobots.commitstatus
   subscriber:
     ref:
       apiVersion: serving.knative.dev/v1alpha1
       kind: Service
-      name: typo-bot
+      name: commitstatus-bot
 ---
 apiVersion: serving.knative.dev/v1alpha1
 kind: Service
 metadata:
-  name: typo-bot
+  name: commitstatus-bot
   labels:
     serving.knative.dev/visibility: cluster-local
 spec:
   template:
     spec:
       containers:
-      - image: github.com/mattmoor/knobots/cmd/typo
+      - image: github.com/mattmoor/knobots/cmd/commitstatus
         env:
         - name: GITHUB_ACCESS_TOKEN
           valueFrom:
             secretKeyRef:
-              name: github-comment-secret
+              # This bot uses a different secret because it needs more permissions
+              # in order to write the repo status.
+              name: github-hook-secret
               key: accessToken

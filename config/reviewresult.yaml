@@ -1,29 +1,29 @@
 apiVersion: eventing.knative.dev/v1alpha1
 kind: Trigger
 metadata:
-  name: typo-trigger
+  name: reviewresult-trigger
   namespace: default
 spec:
   filter:
     sourceAndType:
-      type: dev.mattmoor.knobots.reviewrequest
+      type: dev.mattmoor.knobots.reviewresult
   subscriber:
     ref:
       apiVersion: serving.knative.dev/v1alpha1
       kind: Service
-      name: typo-bot
+      name: reviewresult-bot
 ---
 apiVersion: serving.knative.dev/v1alpha1
 kind: Service
 metadata:
-  name: typo-bot
+  name: reviewresult-bot
   labels:
     serving.knative.dev/visibility: cluster-local
 spec:
   template:
     spec:
       containers:
-      - image: github.com/mattmoor/knobots/cmd/typo
+      - image: github.com/mattmoor/knobots/cmd/reviewresult
         env:
         - name: GITHUB_ACCESS_TOKEN
           valueFrom:

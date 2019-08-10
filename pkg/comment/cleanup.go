@@ -8,7 +8,7 @@ import (
 	"github.com/mattmoor/knobots/pkg/client"
 )
 
-func CleanupOlder(owner, repo string, number int) error {
+func CleanupOlder(name, owner, repo string, number int) error {
 	ctx := context.Background()
 	ghc := client.New(ctx)
 
@@ -21,7 +21,7 @@ func CleanupOlder(owner, repo string, number int) error {
 			return err
 		}
 		for _, comment := range comments {
-			if HasSignature(comment.GetBody()) {
+			if HasSignature(name, comment.GetBody()) {
 				ids = append(ids, comment.GetID())
 			}
 		}

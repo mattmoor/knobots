@@ -6,7 +6,7 @@ metadata:
 spec:
   filter:
     sourceAndType:
-      type: dev.knative.source.github.pull_request
+      type: dev.mattmoor.knobots.reviewrequest
   subscriber:
     ref:
       apiVersion: serving.knative.dev/v1alpha1
@@ -17,6 +17,8 @@ apiVersion: serving.knative.dev/v1alpha1
 kind: Service
 metadata:
   name: whitespace-bot
+  labels:
+    serving.knative.dev/visibility: cluster-local
 spec:
   template:
     spec:

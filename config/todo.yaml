@@ -1,45 +1,47 @@
-apiVersion: eventing.knative.dev/v1alpha1
-kind: Trigger
-metadata:
-  name: todo-pr-trigger
-  namespace: default
-spec:
-  filter:
-    sourceAndType:
-      type: dev.knative.source.github.pull_request
-  subscriber:
-    ref:
-      apiVersion: serving.knative.dev/v1alpha1
-      kind: Service
-      name: todo-bot
----
-apiVersion: eventing.knative.dev/v1alpha1
-kind: Trigger
-metadata:
-  name: todo-issues-trigger
-  namespace: default
-spec:
-  filter:
-    sourceAndType:
-      type: dev.knative.source.github.issues
-  subscriber:
-    ref:
-      apiVersion: serving.knative.dev/v1alpha1
-      kind: Service
-      name: todo-bot
----
-apiVersion: serving.knative.dev/v1alpha1
-kind: Service
-metadata:
-  name: todo-bot
-spec:
-  template:
-    spec:
-      containers:
-      - image: github.com/mattmoor/knobots/cmd/todo
-        env:
-        - name: GITHUB_ACCESS_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: github-comment-secret
-              key: accessToken
+# apiVersion: eventing.knative.dev/v1alpha1
+# kind: Trigger
+# metadata:
+#   name: todo-pr-trigger
+#   namespace: default
+# spec:
+#   filter:
+#     sourceAndType:
+#       type: dev.knative.source.github.pull_request
+#   subscriber:
+#     ref:
+#       apiVersion: serving.knative.dev/v1alpha1
+#       kind: Service
+#       name: todo-bot
+# ---
+# apiVersion: eventing.knative.dev/v1alpha1
+# kind: Trigger
+# metadata:
+#   name: todo-issues-trigger
+#   namespace: default
+# spec:
+#   filter:
+#     sourceAndType:
+#       type: dev.knative.source.github.issues
+#   subscriber:
+#     ref:
+#       apiVersion: serving.knative.dev/v1alpha1
+#       kind: Service
+#       name: todo-bot
+# ---
+# apiVersion: serving.knative.dev/v1alpha1
+# kind: Service
+# metadata:
+#   name: todo-bot
+  # labels:
+  #   serving.knative.dev/visibility: cluster-local
+# spec:
+#   template:
+#     spec:
+#       containers:
+#       - image: github.com/mattmoor/knobots/cmd/todo
+#         env:
+#         - name: GITHUB_ACCESS_TOKEN
+#           valueFrom:
+#             secretKeyRef:
+#               name: github-comment-secret
+#               key: accessToken

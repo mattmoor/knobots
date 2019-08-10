@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/go-github/github"
 
+	"github.com/mattmoor/knobots/pkg/botinfo"
 	"github.com/mattmoor/knobots/pkg/client"
 )
 
@@ -14,7 +15,7 @@ func Create(owner, repo string, number int, body string) error {
 
 	_, _, err := ghc.Issues.CreateComment(ctx,
 		owner, repo, number, &github.IssueComment{
-			Body: WithSignature(body),
+			Body: WithSignature(botinfo.GetName(), body),
 		})
 	return err
 }
