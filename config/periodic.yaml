@@ -42,5 +42,10 @@ spec:
           containers:
           - name: periodic
             image: github.com/mattmoor/knobots/cmd/periodic
+            env:
+            - name: SYSTEM_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
           restartPolicy: Never
       backoffLimit: 0

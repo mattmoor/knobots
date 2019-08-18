@@ -1,6 +1,7 @@
 package donotsubmit
 
 import (
+	"context"
 	"strings"
 
 	"github.com/google/go-github/github"
@@ -26,11 +27,11 @@ func (*donotsubmit) GetType() interface{} {
 	return &reviewrequest.Response{}
 }
 
-func (*donotsubmit) Handle(x interface{}) (handler.Response, error) {
+func (*donotsubmit) Handle(ctx context.Context, x interface{}) (handler.Response, error) {
 	rrr := x.(*reviewrequest.Response)
 
 	var comments []*github.DraftReviewComment
-	err := visitor.Hunks(rrr.Owner, rrr.Repository, rrr.PullRequest,
+	err := visitor.Hunks(ctx, rrr.Owner, rrr.Repository, rrr.PullRequest,
 		func(path string, hs []*diff.Hunk) (visitor.VisitControl, error) {
 			// TODO(mattmoor): Base this on .gitattributes (we should build a library).
 			if strings.HasPrefix(path, "vendor/") {
@@ -69,7 +70,7 @@ func (*donotsubmit) Handle(x interface{}) (handler.Response, error) {
 		Owner:       rrr.Owner,
 		Repository:  rrr.Repository,
 		PullRequest: rrr.PullRequest,
-		SHA:         rrr.SHA,
+		SHA:         rrr.Head.GetSHA(),
 		Comments:    comments,
 	}, nil
 }

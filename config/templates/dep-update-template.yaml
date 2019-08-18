@@ -67,7 +67,7 @@ spec:
     - |
         Produced via:
           `dep ensure -update ${DEPENDENCIES}`
-        /assign @${ASSIGNEE}
+        /assign ${ASSIGNEE}
     env:
     - name: GITHUB_ACCESS_TOKEN
       valueFrom:

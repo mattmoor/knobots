@@ -29,7 +29,7 @@ spec:
     - |
         Produced via:
           `github.com/client9/misspell`
-        /assign @${ASSIGNEE}
+        /assign ${ASSIGNEE}
     env:
     - name: GITHUB_ACCESS_TOKEN
       valueFrom:

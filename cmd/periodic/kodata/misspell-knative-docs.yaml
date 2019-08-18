@@ -1,7 +1,8 @@
 apiVersion: build.knative.dev/v1alpha1
 kind: Build
 metadata:
-  generateName: misspell-knative-docs
+  generateName: misspell-knative-docs-
+  namespace: default
 spec:
   source:
     git:

@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/google/go-github/github"
 
+	"github.com/mattmoor/knobots/pkg/botinfo"
 	"github.com/mattmoor/knobots/pkg/comment"
 	"github.com/mattmoor/knobots/pkg/handler"
 )
@@ -37,11 +39,12 @@ func HandleIssues(ie *github.IssuesEvent) error {
 
 	owner, repo, number := ie.Repo.Owner.GetLogin(), ie.Repo.GetName(), ie.GetIssue().GetNumber()
 
-	if err := comment.CleanupOlder(owner, repo, number); err != nil {
+	if err := comment.CleanupOlder(context.Background(), botinfo.GetName(), owner, repo, number); err != nil {
 		return err
 	}
 
 	return comment.Create(
+		context.Background(),
 		owner, repo, number,
 		fmt.Sprintf("Issues event: %v", ie.GetAction()))
 }
@@ -51,11 +54,12 @@ func HandlePullRequest(pre *github.PullRequestEvent) error {
 
 	owner, repo, number := pre.Repo.Owner.GetLogin(), pre.Repo.GetName(), pre.GetNumber()
 
-	if err := comment.CleanupOlder(owner, repo, number); err != nil {
+	if err := comment.CleanupOlder(context.Background(), botinfo.GetName(), owner, repo, number); err != nil {
 		return err
 	}
 
 	return comment.Create(
+		context.Background(),
 		owner, repo, number,
 		fmt.Sprintf("PR event: %v", pre.GetAction()))
 }

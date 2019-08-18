@@ -1,6 +1,7 @@
 package typo
 
 import (
+	"context"
 	"path/filepath"
 	"strings"
 
@@ -28,7 +29,7 @@ func (*typo) GetType() interface{} {
 	return &reviewrequest.Response{}
 }
 
-func (*typo) Handle(x interface{}) (handler.Response, error) {
+func (*typo) Handle(ctx context.Context, x interface{}) (handler.Response, error) {
 	rrr := x.(*reviewrequest.Response)
 
 	r := misspell.Replacer{
@@ -38,7 +39,7 @@ func (*typo) Handle(x interface{}) (handler.Response, error) {
 	r.Compile()
 
 	var comments []*github.DraftReviewComment
-	err := visitor.Hunks(rrr.Owner, rrr.Repository, rrr.PullRequest,
+	err := visitor.Hunks(ctx, rrr.Owner, rrr.Repository, rrr.PullRequest,
 		func(path string, hs []*diff.Hunk) (visitor.VisitControl, error) {
 			// TODO(mattmoor): Base this on .gitattributes (we should build a library).
 			if strings.HasPrefix(path, "vendor/") {
@@ -65,7 +66,10 @@ func (*typo) Handle(x interface{}) (handler.Response, error) {
 							comments = append(comments, &github.DraftReviewComment{
 								Path:     &path,
 								Position: &position,
-								Body:     comment.WithSuggestion(updated),
+								Body: comment.WithCaptionedSuggestion(
+									"Found potential misspelling(s):",
+									updated,
+								),
 							})
 						}
 
@@ -86,7 +90,7 @@ func (*typo) Handle(x interface{}) (handler.Response, error) {
 		Owner:       rrr.Owner,
 		Repository:  rrr.Repository,
 		PullRequest: rrr.PullRequest,
-		SHA:         rrr.SHA,
+		SHA:         rrr.Head.GetSHA(),
 		Comments:    comments,
 	}, nil
 }

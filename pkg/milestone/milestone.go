@@ -8,8 +8,7 @@ import (
 	"github.com/mattmoor/knobots/pkg/client"
 )
 
-func Get(owner, repo, title string) (*github.Milestone, error) {
-	ctx := context.Background()
+func Get(ctx context.Context, owner, repo, title string) (*github.Milestone, error) {
 	ghc := client.New(ctx)
 
 	// Walk the pages of milestones looking for one matching our title.
@@ -24,7 +23,7 @@ func Get(owner, repo, title string) (*github.Milestone, error) {
 				return m, nil
 			}
 		}
-		if lopt.Page == resp.NextPage {
+		if resp.NextPage == 0 {
 			break
 		}
 		lopt.Page = resp.NextPage
@@ -32,8 +31,7 @@ func Get(owner, repo, title string) (*github.Milestone, error) {
 	return nil, nil
 }
 
-func Create(owner, repo, title string) (*github.Milestone, error) {
-	ctx := context.Background()
+func Create(ctx context.Context, owner, repo, title string) (*github.Milestone, error) {
 	ghc := client.New(ctx)
 
 	m, _, err := ghc.Issues.CreateMilestone(ctx, owner, repo, &github.Milestone{
@@ -42,9 +40,9 @@ func Create(owner, repo, title string) (*github.Milestone, error) {
 	return m, err
 }
 
-func GetOrCreate(owner, repo, title string) (*github.Milestone, error) {
-	if m, err := Get(owner, repo, title); err != nil || m != nil {
+func GetOrCreate(ctx context.Context, owner, repo, title string) (*github.Milestone, error) {
+	if m, err := Get(ctx, owner, repo, title); err != nil || m != nil {
 		return m, err
 	}
-	return Create(owner, repo, title)
+	return Create(ctx, owner, repo, title)
 }

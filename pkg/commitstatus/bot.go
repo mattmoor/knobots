@@ -21,10 +21,11 @@ func (*commitstatus) GetType() interface{} {
 	return &Payload{}
 }
 
-func (*commitstatus) Handle(x interface{}) (handler.Response, error) {
+func (*commitstatus) Handle(ctx context.Context, x interface{}) (handler.Response, error) {
 	p := x.(*Payload)
 
-	ctx := context.Background()
+	return nil, nil
+
 	ghc := client.New(ctx)
 	_, _, err := ghc.Repositories.CreateStatus(ctx, p.Owner, p.Repository, p.SHA, &github.RepoStatus{
 		Context:     &p.Name,

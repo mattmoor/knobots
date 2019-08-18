@@ -37,10 +37,18 @@ var (
 
 	title = flag.String("title", "", "The title of the PR to send.")
 	body  = flag.String("body", "", "The body of the PR to send.")
+	token = flag.String("token", "", "The random token for identifying this PR's provenance.")
 )
 
 func main() {
 	flag.Parse()
+
+	// Clean up older PRs as the first thing we do so that if the latest batch of
+	// changes needs nothing we don't leave old PRs around.
+	err := cleanupOlderPRs(*title, *owner, *repo)
+	if err != nil {
+		log.Fatalf("Error cleaning up PRs: %v", err)
+	}
 
 	r, err := git.PlainOpen("/workspace")
 	if err != nil {
@@ -139,15 +147,14 @@ func main() {
 	// Head has the form source-owner:branch, per the Github API docs.
 	head := fmt.Sprintf("%s:%s", username, branchName)
 
-	err = cleanupOlderPRs(*title, *owner, *repo)
-	if err != nil {
-		log.Fatalf("Error cleaning up PRs: %v", err)
-	}
+	// Inject the token (if specified) into the body of the PR, so
+	// that we can identify it's provenance.
+	bodyWithToken := comment.WithSignature(*token, *body)
 
 	pr, _, err := ghc.PullRequests.Create(ctx, *owner, *repo, &github.NewPullRequest{
 		Title: title,
 		// Inject a signature into the body that will help us clean up matching older PRs.
-		Body: comment.WithSignature(*title, *body),
+		Body: comment.WithSignature(*title, *bodyWithToken),
 		Head: &head,
 		Base: branch,
 	})
@@ -181,7 +188,7 @@ func cleanupOlderPRs(name, owner, repo string) error {
 				}
 			}
 		}
-		if lopt.Page == resp.NextPage {
+		if resp.NextPage == 0 {
 			break
 		}
 		lopt.Page = resp.NextPage

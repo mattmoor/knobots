@@ -13,6 +13,7 @@ import (
 
 	"github.com/google/go-github/github"
 
+	"github.com/mattmoor/knobots/pkg/botinfo"
 	"github.com/mattmoor/knobots/pkg/client"
 	"github.com/mattmoor/knobots/pkg/comment"
 	"github.com/mattmoor/knobots/pkg/handler"
@@ -153,7 +154,7 @@ func CommentWithProlog(prolog string, owner, repo string, number int, hits []mat
 		parts = append(parts, fmt.Sprintf(" * `%s` contains: `%s`", hit.filename, hit.text))
 	}
 
-	return comment.Create(owner, repo, number, strings.Join(parts, "\n"))
+	return comment.Create(context.Background(), owner, repo, number, strings.Join(parts, "\n"))
 }
 
 func HandlePullRequest(pre *github.PullRequestEvent) error {
@@ -170,7 +171,7 @@ func HandlePullRequest(pre *github.PullRequestEvent) error {
 		return err
 	} else if len(fixedIssues) == 0 {
 		// This doesn't fix any issues, so nothing to do.
-		return comment.CleanupOlder(owner, repo, pr.GetNumber())
+		return comment.CleanupOlder(context.Background(), botinfo.GetName(), owner, repo, pr.GetNumber())
 	}
 	// TODO(mattmoor): Check to see if each of the numbers is
 	// actually an issue that's open.
@@ -180,7 +181,7 @@ func HandlePullRequest(pre *github.PullRequestEvent) error {
 		return err
 	}
 
-	if err := comment.CleanupOlder(owner, repo, pr.GetNumber()); err != nil {
+	if err := comment.CleanupOlder(context.Background(), botinfo.GetName(), owner, repo, pr.GetNumber()); err != nil {
 		return err
 	}
 
@@ -226,7 +227,7 @@ func HandleIssues(ie *github.IssuesEvent) error {
 		return err
 	}
 
-	if err := comment.CleanupOlder(owner, repo, issue.GetNumber()); err != nil {
+	if err := comment.CleanupOlder(context.Background(), botinfo.GetName(), owner, repo, issue.GetNumber()); err != nil {
 		return err
 	}
 

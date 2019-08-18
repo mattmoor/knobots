@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+
 	"github.com/google/go-github/github"
 
 	"github.com/mattmoor/knobots/pkg/handler"
@@ -14,7 +16,7 @@ func (t *Thing) GetType() interface{} {
 	return github.PullRequestEvent{}
 }
 
-func (t *Thing) Handle(x interface{}) (handler.Response, error) {
+func (t *Thing) Handle(ctx context.Context, x interface{}) (handler.Response, error) {
 	pre := x.(github.PullRequestEvent)
 
 	pr := pre.GetPullRequest()

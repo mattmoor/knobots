@@ -11,8 +11,7 @@ import (
 
 type HunkCallback func(filename string, hunks []*diff.Hunk) (VisitControl, error)
 
-func Hunks(owner, repo string, num int, v HunkCallback) error {
-	ctx := context.Background()
+func Hunks(ctx context.Context, owner, repo string, num int, v HunkCallback) error {
 	ghc := client.New(ctx)
 
 	lopt := &github.ListOptions{}

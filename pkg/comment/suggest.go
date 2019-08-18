@@ -13,3 +13,12 @@ func WithSuggestion(replacement string) *string {
 		"```",
 	}, "\n"))
 }
+
+func WithCaptionedSuggestion(caption, replacement string) *string {
+	return WithSignature(botinfo.GetName(), strings.Join([]string{
+		caption,
+		"```suggestion",
+		replacement,
+		"```",
+	}, "\n"))
+}

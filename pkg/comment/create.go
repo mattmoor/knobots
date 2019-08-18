@@ -9,8 +9,7 @@ import (
 	"github.com/mattmoor/knobots/pkg/client"
 )
 
-func Create(owner, repo string, number int, body string) error {
-	ctx := context.Background()
+func Create(ctx context.Context, owner, repo string, number int, body string) error {
 	ghc := client.New(ctx)
 
 	_, _, err := ghc.Issues.CreateComment(ctx,

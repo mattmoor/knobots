@@ -1,6 +1,8 @@
 package reviewresult
 
 import (
+	"context"
+
 	"github.com/google/go-github/github"
 
 	"github.com/mattmoor/knobots/pkg/commitstatus"
@@ -20,10 +22,10 @@ func (*reviewresult) GetType() interface{} {
 	return &Payload{}
 }
 
-func (*reviewresult) Handle(x interface{}) (handler.Response, error) {
+func (*reviewresult) Handle(ctx context.Context, x interface{}) (handler.Response, error) {
 	p := x.(*Payload)
 
-	if err := review.CleanupOlder(p.Name, p.Owner, p.Repository, p.PullRequest); err != nil {
+	if err := review.CleanupOlder(ctx, p.Name, p.Owner, p.Repository, p.PullRequest); err != nil {
 		return nil, err
 	}
 
@@ -36,10 +38,10 @@ func (*reviewresult) Handle(x interface{}) (handler.Response, error) {
 	}
 
 	// Determine the check state and write our review.
-	if len(p.Comments) != 0 {
+	if len(p.Comments) != 0 || p.Body != "" {
 		pr.State = "failure"
 
-		if err := review.Create(p.Name, p.Owner, p.Repository, p.PullRequest, p.Comments); err != nil {
+		if err := review.Create(ctx, p.Name, p.Owner, p.Repository, p.PullRequest, p.Body, p.Comments); err != nil {
 			return nil, err
 		}
 	} else {
@@ -58,6 +60,7 @@ type Payload struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 
+	Body     string                       `json:"body,omitempty"`
 	Comments []*github.DraftReviewComment `json:"comments"`
 }
 

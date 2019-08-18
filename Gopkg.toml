@@ -9,6 +9,10 @@ required = [
   name = "golang.org/x/tools"
   revision = "4c874b978acba4ecd4a257d3bb8829dd5de17be8"
 
+[[override]]
+  name = "github.com/golang/protobuf"
+  version = "1.3.0"
+
 [prune]
   go-tests = true
   unused-packages = true

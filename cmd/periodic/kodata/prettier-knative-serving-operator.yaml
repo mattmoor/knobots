@@ -1,7 +1,8 @@
 apiVersion: build.knative.dev/v1alpha1
 kind: Build
 metadata:
-  generateName: prettier-knative-serving-operator
+  generateName: prettier-knative-serving-operator-
+  namespace: default
 spec:
   source:
     git:

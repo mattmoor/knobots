@@ -1,0 +1,61 @@
+apiVersion: eventing.knative.dev/v1alpha1
+kind: Trigger
+metadata:
+  name: gotool-trigger
+  namespace: default
+spec:
+  filter:
+    sourceAndType:
+      type: dev.mattmoor.knobots.reviewrequest
+  subscriber:
+    ref:
+      apiVersion: serving.knative.dev/v1alpha1
+      kind: Service
+      name: gotool-bot
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: gotool
+rules:
+  - apiGroups: ["build.knative.dev"]
+    resources: ["builds"]
+    verbs: ["get", "list", "create", "update", "delete", "deletecollection", "patch", "watch"]
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: gotool
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: RoleBinding
+metadata:
+  name: gotool
+subjects:
+  - kind: ServiceAccount
+    name: gotool
+roleRef:
+  kind: Role
+  name: gotool
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: serving.knative.dev/v1alpha1
+kind: Service
+metadata:
+  name: gotool-bot
+  labels:
+    serving.knative.dev/visibility: cluster-local
+spec:
+  template:
+    spec:
+      serviceAccountName: gotool
+      containers:
+      - image: github.com/mattmoor/knobots/cmd/gotool
+        env:
+        - name: GITHUB_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: github-comment-secret
+              key: accessToken
+      # Give it ten minutes to run the build.
+      timeoutSeconds: 600

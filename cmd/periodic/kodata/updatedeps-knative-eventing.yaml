@@ -2,6 +2,7 @@ apiVersion: build.knative.dev/v1alpha1
 kind: Build
 metadata:
   generateName: update-deps-knative-eventing-
+  namespace: default
 spec:
   source:
     git:

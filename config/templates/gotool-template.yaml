@@ -10,6 +10,8 @@ spec:
     default: master
   - name: ASSIGNEE
     default: mattmoor
+  - name: TOKEN
+    default: ""
 
   steps:
   - name: gofmt
@@ -59,12 +61,13 @@ spec:
     - "-repository=${REPOSITORY}"
     - "-title=golang format tools"
     - "-branch=${BRANCH}"
+    - "-token=${TOKEN}"
     - "-body"
     - |
         Produced via:
           `gofmt -s -w $(find -path './vendor' -prune -o -type f -name '*.go' -print))`
           `goimports -w $(find -name '*.go' | grep -v vendor)`
-        /assign @${ASSIGNEE}
+        /assign ${ASSIGNEE}
     env:
     - name: GITHUB_ACCESS_TOKEN
       valueFrom:

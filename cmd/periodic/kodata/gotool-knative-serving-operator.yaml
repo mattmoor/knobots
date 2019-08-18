@@ -1,7 +1,8 @@
 apiVersion: build.knative.dev/v1alpha1
 kind: Build
 metadata:
-  generateName: gotool-knative-serving-operator
+  generateName: gotool-knative-serving-operator-
+  namespace: default
 spec:
   source:
     git:

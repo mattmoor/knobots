@@ -60,12 +60,12 @@ func HandlePullRequest(pre *github.PullRequestEvent) error {
 }
 
 func needsTriage(owner, repo string, number int) error {
-	m, err := milestone.GetOrCreate(owner, repo, "Needs Triage")
+	ctx := context.Background()
+	m, err := milestone.GetOrCreate(ctx, owner, repo, "Needs Triage")
 	if err != nil {
 		return err
 	}
 
-	ctx := context.Background()
 	ghc := client.New(ctx)
 	_, _, err = ghc.Issues.Edit(ctx, owner, repo, number, &github.IssueRequest{
 		Milestone: m.Number,

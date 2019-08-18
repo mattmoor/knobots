@@ -5,8 +5,16 @@ import (
 	"log"
 	"net/http"
 
+	"cloud.google.com/go/compute/metadata"
+	"contrib.go.opencensus.io/exporter/stackdriver"
 	"github.com/cloudevents/sdk-go"
+	"github.com/cloudevents/sdk-go/pkg/cloudevents/client"
+	transporthttp "github.com/cloudevents/sdk-go/pkg/cloudevents/transport/http"
 	"github.com/kelseyhightower/envconfig"
+	"go.opencensus.io/plugin/ochttp/propagation/b3"
+	"go.opencensus.io/stats/view"
+	"go.opencensus.io/trace"
+	"go.opencensus.io/trace/propagation"
 	"knative.dev/pkg/signals"
 )
 
@@ -22,7 +30,26 @@ type Response interface {
 
 type Interface interface {
 	GetType() interface{}
-	Handle(interface{}) (Response, error)
+	Handle(context.Context, interface{}) (Response, error)
+}
+
+func responseContext(ctx context.Context, pf propagation.HTTPFormat) *cloudevents.HTTPTransportResponseContext {
+	sc, ok := pf.SpanContextFromRequest(&http.Request{
+		Header: cloudevents.HTTPTransportContextFrom(ctx).Header,
+	})
+	if !ok {
+		return nil
+	}
+	req := &http.Request{
+		Header: http.Header{},
+	}
+	pf.SpanContextToRequest(sc, req)
+
+	log.Printf("SENDING RESPONSE HEADERS: %v", req.Header)
+
+	return &cloudevents.HTTPTransportResponseContext{
+		Header: req.Header,
+	}
 }
 
 func gotEvent(h Interface) interface{} {
@@ -32,8 +59,9 @@ func gotEvent(h Interface) interface{} {
 			return err
 		}
 
-		response, err := h.Handle(data)
+		response, err := h.Handle(ctx, data)
 		if err != nil {
+			log.Printf("handle returned error: %v", err)
 			return err
 		}
 
@@ -47,6 +75,7 @@ func gotEvent(h Interface) interface{} {
 		r.SetData(response)
 
 		resp.RespondWith(http.StatusOK, &r)
+		resp.Context = responseContext(ctx, &b3.HTTPFormat{})
 		log.Printf("Response Sent!")
 
 		return nil
@@ -55,6 +84,27 @@ func gotEvent(h Interface) interface{} {
 
 func Main(h Interface) {
 	ctx := signals.NewContext()
+
+	projectID, err := metadata.ProjectID()
+	if err != nil {
+		log.Fatalf("unable to fetch GCP ProjectID: %v", err)
+	}
+
+	// Create and register a OpenCensus Stackdriver Trace exporter.
+	exporter, err := stackdriver.NewExporter(stackdriver.Options{
+		ProjectID: projectID,
+	})
+	if err != nil {
+		log.Fatalf("stackdriver.NewExporter() = %v", err)
+	}
+	trace.RegisterExporter(exporter)
+
+	if err := view.Register(
+		client.LatencyView,
+		transporthttp.LatencyView,
+	); err != nil {
+		log.Fatalf("failed to register views: %v", err)
+	}
 
 	var env envConfig
 	if err := envconfig.Process("", &env); err != nil {

@@ -9,8 +9,7 @@ import (
 	"github.com/mattmoor/knobots/pkg/comment"
 )
 
-func CleanupOlder(name, owner, repo string, number int) error {
-	ctx := context.Background()
+func CleanupOlder(ctx context.Context, name, owner, repo string, number int) error {
 	ghc := client.New(ctx)
 
 	var ids []int64
@@ -26,7 +25,7 @@ func CleanupOlder(name, owner, repo string, number int) error {
 				ids = append(ids, c.GetID())
 			}
 		}
-		if lopt.Page == resp.NextPage {
+		if resp.NextPage == 0 {
 			break
 		}
 		lopt.Page = resp.NextPage

@@ -1,6 +1,7 @@
 package reviewrequest
 
 import (
+	"context"
 	"log"
 
 	"github.com/google/go-github/github"
@@ -20,7 +21,7 @@ func (*reviewrequest) GetType() interface{} {
 	return &github.PullRequestEvent{}
 }
 
-func (*reviewrequest) Handle(x interface{}) (handler.Response, error) {
+func (*reviewrequest) Handle(ctx context.Context, x interface{}) (handler.Response, error) {
 	pre := x.(*github.PullRequestEvent)
 
 	pr := pre.GetPullRequest()
@@ -44,15 +45,15 @@ func (*reviewrequest) Handle(x interface{}) (handler.Response, error) {
 		Owner:       pre.Repo.Owner.GetLogin(),
 		Repository:  pre.Repo.GetName(),
 		PullRequest: pre.GetNumber(),
-		SHA:         pr.GetHead().GetSHA(),
+		Head:        pr.GetHead(),
 	}, nil
 }
 
 type Response struct {
-	Owner       string `json:"owner"`
-	Repository  string `json:"repository"`
-	PullRequest int    `json:"pull_request"`
-	SHA         string `json:"sha"`
+	Owner       string                    `json:"owner"`
+	Repository  string                    `json:"repository"`
+	PullRequest int                       `json:"pull_request"`
+	Head        *github.PullRequestBranch `json:"head"`
 }
 
 var _ handler.Response = (*Response)(nil)
