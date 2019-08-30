@@ -1,0 +1,21 @@
+apiVersion: build.knative.dev/v1alpha1
+kind: Build
+metadata:
+  generateName: update-deps-knative-eventing-contrib-
+  namespace: default
+spec:
+  source:
+    git:
+      url: https://github.com/knative/eventing-contrib.git
+      revision: master
+  template:
+    name: dep-update
+    arguments:
+    - name: ORGANIZATION
+      value: knative
+    - name: REPOSITORY
+      value: eventing-contrib
+    - name: DEPENDENCIES
+      value: knative.dev/test-infra knative.dev/pkg knative.dev/serving knative.dev/eventing
+    - name: ASSIGNEE
+      value: n3wscott

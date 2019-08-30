@@ -2,7 +2,6 @@ package slack
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/mattmoor/knobots/pkg/botinfo"
 	"github.com/mattmoor/knobots/pkg/handler"
@@ -20,6 +19,6 @@ func ErrorReport(message string, attributes map[string]string) handler.Response 
 
 	return &DirectMessage{
 		Emails:  []string{"mattmoor@google.com"},
-		Message: strings.Join(lines, "\n"),
+		Message: lines,
 	}
 }

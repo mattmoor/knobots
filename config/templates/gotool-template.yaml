@@ -42,6 +42,9 @@ spec:
       elif [ "${REPOSITORY}" == eventing ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
+      elif [ "${REPOSITORY}" == eventing-contrib ]
+      then
+        export PARENT_DIR=${GOPATH}/src/knative.dev
       elif [ "${REPOSITORY}" == "caching" ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev

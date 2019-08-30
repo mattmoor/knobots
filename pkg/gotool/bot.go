@@ -10,7 +10,6 @@ import (
 
 	"github.com/google/go-github/github"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/rest"
 
 	buildv1alpha1 "github.com/knative/build/pkg/apis/build/v1alpha1"
 	buildclientset "github.com/knative/build/pkg/client/clientset/versioned"
@@ -26,13 +25,13 @@ import (
 )
 
 type gotool struct {
-	cfg *rest.Config
+	BuildClient buildclientset.Interface
 }
 
 var _ handler.Interface = (*gotool)(nil)
 
-func New(cfg *rest.Config) handler.Interface {
-	return &gotool{cfg: cfg}
+func New(bc buildclientset.Interface) handler.Interface {
+	return &gotool{BuildClient: bc}
 }
 
 func (*gotool) GetType() interface{} {
@@ -51,11 +50,6 @@ func (gt *gotool) Handle(ctx context.Context, x interface{}) (handler.Response, 
 		return nil, err
 	}
 	token := hex.EncodeToString(bytes)
-
-	bc, err := buildclientset.NewForConfig(gt.cfg)
-	if err != nil {
-		return nil, err
-	}
 
 	build := &buildv1alpha1.Build{
 		ObjectMeta: metav1.ObjectMeta{
@@ -95,7 +89,7 @@ func (gt *gotool) Handle(ctx context.Context, x interface{}) (handler.Response, 
 	}
 
 	var resp handler.Response
-	err = builds.Run(bc, build, func(b *buildv1alpha1.Build) error {
+	err := builds.Run(gt.BuildClient, build, func(b *buildv1alpha1.Build) error {
 		c := b.Status.GetCondition("Succeeded")
 		switch c.Status {
 		case "True":
@@ -160,6 +154,9 @@ func (gt *gotool) Handle(ctx context.Context, x interface{}) (handler.Response, 
 		}
 		return nil
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	return resp, nil
 }

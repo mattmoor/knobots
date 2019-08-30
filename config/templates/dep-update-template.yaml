@@ -16,6 +16,10 @@ spec:
   - name: dep
     image: gcr.io/convoy-adapter/dep
     command: ["/bin/bash", "-c"]
+    resources:
+      requests:
+        cpu: 3000m
+        memory: 2Gi
     args:
     - |
       set -e
@@ -34,6 +38,9 @@ spec:
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
       elif [ "${REPOSITORY}" == eventing ]
+      then
+        export PARENT_DIR=${GOPATH}/src/knative.dev
+      elif [ "${REPOSITORY}" == eventing-contrib ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
       elif [ "${REPOSITORY}" == "caching" ]

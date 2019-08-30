@@ -1,0 +1,64 @@
+apiVersion: eventing.knative.dev/v1alpha1
+kind: Trigger
+metadata:
+  name: dailybuild-trigger
+  namespace: default
+spec:
+  filter:
+    sourceAndType:
+      type: dev.mattmoor.knobots.dailybuild
+  subscriber:
+    ref:
+      apiVersion: serving.knative.dev/v1alpha1
+      kind: Service
+      name: dailybuild-bot
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: dailybuild
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/log"]
+    verbs: ["get"]
+  - apiGroups: ["build.knative.dev"]
+    resources: ["builds"]
+    verbs: ["get", "list", "create", "update", "delete", "deletecollection", "patch", "watch"]
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: dailybuild
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: RoleBinding
+metadata:
+  name: dailybuild
+subjects:
+  - kind: ServiceAccount
+    name: dailybuild
+roleRef:
+  kind: Role
+  name: dailybuild
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: serving.knative.dev/v1alpha1
+kind: Service
+metadata:
+  name: dailybuild-bot
+  labels:
+    serving.knative.dev/visibility: cluster-local
+spec:
+  template:
+    spec:
+      serviceAccountName: dailybuild
+      containers:
+      - image: github.com/mattmoor/knobots/cmd/dailybuild
+        env:
+        - name: GITHUB_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: github-comment-secret
+              key: accessToken
+      # Give it ten minutes to run the build.
+      timeoutSeconds: 600

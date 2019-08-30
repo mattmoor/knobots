@@ -1,6 +1,7 @@
 package builds
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -35,8 +36,8 @@ func Run(bc buildclientset.Interface, build *buildv1alpha1.Build, f func(*buildv
 	for {
 		select {
 		case <-timeout:
-			log.Printf("Timed out waiting for build %s", build.Name)
-			return nil
+			return fmt.Errorf("Timed out waiting for build %s", build.Name)
+
 		case event, ok := <-wi.ResultChan():
 			if !ok {
 				log.Printf("Unexpected end of watch for build: %s", build.Name)

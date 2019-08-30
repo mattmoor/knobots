@@ -46,10 +46,12 @@ func (*dm) Handle(ctx context.Context, x interface{}) (handler.Response, error) 
 		return nil, err
 	}
 
-	_, _, err = api.PostMessage(channelID, slack.MsgOptionText(dm.Message, false))
-	if err != nil {
-		log.Printf("error posting message: %v", err)
-		return nil, err
+	for _, line := range dm.Message {
+		_, _, err = api.PostMessage(channelID, slack.MsgOptionText(line, false))
+		if err != nil {
+			log.Printf("error posting message: %v", err)
+			return nil, err
+		}
 	}
 
 	log.Print("Sent message")
@@ -60,7 +62,7 @@ type DirectMessage struct {
 	// The email addresses to which we send a message.
 	Emails []string `json:"emails"`
 
-	Message string `json:"message"`
+	Message []string `json:"message"`
 	// TODO(mattmoor): Determine the contents.
 }
 
