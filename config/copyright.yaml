@@ -9,11 +9,11 @@ spec:
       type: dev.mattmoor.knobots.reviewrequest
   subscriber:
     ref:
-      apiVersion: serving.knative.dev/v1alpha1
+      apiVersion: serving.knative.dev/v1
       kind: Service
       name: copyright-bot
 ---
-apiVersion: serving.knative.dev/v1alpha1
+apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   name: copyright-bot

@@ -9,7 +9,7 @@ spec:
       type: dev.mattmoor.knobots.dailybuild
   subscriber:
     ref:
-      apiVersion: serving.knative.dev/v1alpha1
+      apiVersion: serving.knative.dev/v1
       kind: Service
       name: dailybuild-bot
 ---
@@ -42,7 +42,7 @@ roleRef:
   name: dailybuild
   apiGroup: rbac.authorization.k8s.io
 ---
-apiVersion: serving.knative.dev/v1alpha1
+apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   name: dailybuild-bot

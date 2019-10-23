@@ -9,7 +9,7 @@ spec:
       type: dev.mattmoor.knobots.reviewrequest
   subscriber:
     ref:
-      apiVersion: serving.knative.dev/v1alpha1
+      apiVersion: serving.knative.dev/v1
       kind: Service
       name: gotool-bot
 ---
@@ -39,7 +39,7 @@ roleRef:
   name: gotool
   apiGroup: rbac.authorization.k8s.io
 ---
-apiVersion: serving.knative.dev/v1alpha1
+apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   name: gotool-bot

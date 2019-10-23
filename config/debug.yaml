@@ -8,11 +8,11 @@
 #     sourceAndType: {}
 #   subscriber:
 #     ref:
-#       apiVersion: serving.knative.dev/v1alpha1
+#       apiVersion: serving.knative.dev/v1
 #       kind: Service
 #       name: debug-bot
 # ---
-# apiVersion: serving.knative.dev/v1alpha1
+# apiVersion: serving.knative.dev/v1
 # kind: Service
 # metadata:
 #   name: debug-bot

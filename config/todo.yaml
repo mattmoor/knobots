@@ -9,7 +9,7 @@
 #       type: dev.knative.source.github.pull_request
 #   subscriber:
 #     ref:
-#       apiVersion: serving.knative.dev/v1alpha1
+#       apiVersion: serving.knative.dev/v1
 #       kind: Service
 #       name: todo-bot
 # ---
@@ -24,11 +24,11 @@
 #       type: dev.knative.source.github.issues
 #   subscriber:
 #     ref:
-#       apiVersion: serving.knative.dev/v1alpha1
+#       apiVersion: serving.knative.dev/v1
 #       kind: Service
 #       name: todo-bot
 # ---
-# apiVersion: serving.knative.dev/v1alpha1
+# apiVersion: serving.knative.dev/v1
 # kind: Service
 # metadata:
 #   name: todo-bot
