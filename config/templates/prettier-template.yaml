@@ -13,7 +13,7 @@ spec:
 
   steps:
   - name: prettier
-    image: gcr.io/convoy-adapter/prettier
+    image: gcr.io/mattmoor-knative/prettier
     # We override the entrypoint of the ko image to embed shell functionality.
     command: ["/bin/sh", "-c"]
     args: ["prettier --write --prose-wrap=always $(find -name '*.md' | grep -v vendor | grep -v .github)"]

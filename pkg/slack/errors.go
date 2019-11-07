@@ -18,7 +18,7 @@ func ErrorReport(message string, attributes map[string]string) handler.Response 
 	}
 
 	return &DirectMessage{
-		Emails:  []string{"mattmoor@google.com"},
+		Emails:  []string{"mattmoor@vmware.com"},
 		Message: lines,
 	}
 }

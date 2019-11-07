@@ -1,19 +1,17 @@
 apiVersion: build.knative.dev/v1alpha1
 kind: Build
 metadata:
-  generateName: misspell-gcp-cre-
+  generateName: prettier-knative-eventing-operator-
   namespace: default
 spec:
   source:
     git:
-      url: https://github.com/google/knative-gcp.git
+      url: https://github.com/knative/eventing-operator.git
       revision: master
   template:
-    name: misspell
+    name: prettier
     arguments:
     - name: ORGANIZATION
-      value: google
+      value: knative
     - name: REPOSITORY
-      value: knative-gcp
-    - name: ASSIGNEE
-      value: n3wscott
+      value: eventing-operator

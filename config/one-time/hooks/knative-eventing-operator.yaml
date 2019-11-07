@@ -1,7 +1,7 @@
 apiVersion: sources.eventing.knative.dev/v1alpha1
 kind: GitHubSource
 metadata:
-  name: knative-build
+  name: knative-eventing-operator
 spec:
   # The types of events to which we are listening.
   eventTypes:
@@ -10,7 +10,7 @@ spec:
 
   # The repository to which we are listening.
   # There should be a file like this for each watched repository.
-  ownerAndRepository: knative/build
+  ownerAndRepository: knative/eventing-operator
 
   # This is the Github access token that is used to register
   # the webhook.

@@ -14,7 +14,7 @@ spec:
 
   steps:
   - name: dep
-    image: gcr.io/convoy-adapter/dep
+    image: gcr.io/mattmoor-knative/dep
     command: ["/bin/bash", "-c"]
     resources:
       requests:
