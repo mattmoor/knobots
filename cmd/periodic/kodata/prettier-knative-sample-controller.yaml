@@ -15,3 +15,5 @@ spec:
       value: knative
     - name: REPOSITORY
       value: sample-controller
+    - name: ASSIGNEE
+      value: n3wscott

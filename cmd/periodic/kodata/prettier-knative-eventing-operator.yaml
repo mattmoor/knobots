@@ -15,3 +15,5 @@ spec:
       value: knative
     - name: REPOSITORY
       value: eventing-operator
+    - name: ASSIGNEE
+      value: k4leung4

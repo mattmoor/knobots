@@ -15,3 +15,5 @@ spec:
       value: knative
     - name: REPOSITORY
       value: serving-operator
+    - name: ASSIGNEE
+      value: k4leung4

@@ -15,3 +15,5 @@ spec:
       value: knative
     - name: REPOSITORY
       value: serving
+    - name: ASSIGNEE
+      value: vagababov

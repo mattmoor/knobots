@@ -15,3 +15,5 @@ spec:
       value: knative
     - name: REPOSITORY
       value: pkg
+    - name: ASSIGNEE
+      value: n3wscott

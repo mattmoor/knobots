@@ -18,4 +18,4 @@ spec:
     - name: DEPENDENCIES
       value: knative.dev/test-infra knative.dev/pkg knative.dev/caching
     - name: ASSIGNEE
-      value: mattmoor
+      value: vagababov

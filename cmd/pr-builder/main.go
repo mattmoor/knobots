@@ -31,7 +31,7 @@ var (
 	// TODO(mattmoor): Figure out how to dodge CLA bot...
 	signature = &object.Signature{
 		Name:  "Matt Moore (via sockpuppet)",
-		Email: "mattmoor+sockpuppet@vmware.com",
+		Email: "mattmoor@vmware.com",
 		When:  time.Now(),
 	}
 
