@@ -41,6 +41,9 @@ func (*gotool) GetType() interface{} {
 func (gt *gotool) Handle(ctx context.Context, x interface{}) (handler.Response, error) {
 	rrr := x.(*reviewrequest.Response)
 
+	// Bot runs as me now, so whack this.
+	return nil, nil
+
 	if rrr.Head.GetUser().GetLogin() != "mattmoor" {
 		return nil, nil
 	}
