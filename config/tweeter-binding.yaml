@@ -1,0 +1,14 @@
+apiVersion: bindings.mattmoor.dev/v1alpha1
+kind: TwitterBinding
+metadata:
+  name: tweet-binding
+spec:
+  subject:
+    apiVersion: serving.knative.dev/v1
+    kind: Service
+    selector:
+      matchLabels:
+        tweeter: post
+
+  secret:
+    name: twitter-secret

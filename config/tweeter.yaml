@@ -1,0 +1,27 @@
+apiVersion: eventing.knative.dev/v1alpha1
+kind: Trigger
+metadata:
+  name: tweeter-trigger
+  namespace: default
+spec:
+  filter:
+    sourceAndType:
+      type: dev.mattmoor.knobots.tweeter
+  subscriber:
+    ref:
+      apiVersion: serving.knative.dev/v1
+      kind: Service
+      name: tweeter-bot
+---
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: tweeter-bot
+  labels:
+    serving.knative.dev/visibility: cluster-local
+    tweeter: post
+spec:
+  template:
+    spec:
+      containers:
+      - image: github.com/mattmoor/knobots/cmd/tweeter
