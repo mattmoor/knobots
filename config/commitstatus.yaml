@@ -19,16 +19,9 @@ metadata:
   name: commitstatus-bot
   labels:
     serving.knative.dev/visibility: cluster-local
+    github: hook
 spec:
   template:
     spec:
       containers:
       - image: github.com/mattmoor/knobots/cmd/commitstatus
-        env:
-        - name: GITHUB_ACCESS_TOKEN
-          valueFrom:
-            secretKeyRef:
-              # This bot uses a different secret because it needs more permissions
-              # in order to write the repo status.
-              name: github-hook-secret
-              key: accessToken

@@ -5,12 +5,15 @@ import (
 
 	"github.com/google/go-github/github"
 
-	"github.com/mattmoor/knobots/pkg/client"
+	client "github.com/mattmoor/bindings/pkg/github"
 	"github.com/mattmoor/knobots/pkg/comment"
 )
 
 func CleanupOlder(ctx context.Context, name, owner, repo string, number int) error {
-	ghc := client.New(ctx)
+	ghc, err := client.New(ctx)
+	if err != nil {
+		return err
+	}
 
 	var ids []int64
 

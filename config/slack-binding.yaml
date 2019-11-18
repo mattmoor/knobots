@@ -1,0 +1,14 @@
+apiVersion: bindings.mattmoor.dev/v1alpha1
+kind: SlackBinding
+metadata:
+  name: comment-binding
+spec:
+  subject:
+    apiVersion: serving.knative.dev/v1
+    kind: Service
+    selector:
+      matchLabels:
+        slack: comment
+
+  secret:
+    name: slack-secret

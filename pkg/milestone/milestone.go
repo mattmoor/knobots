@@ -5,11 +5,14 @@ import (
 
 	"github.com/google/go-github/github"
 
-	"github.com/mattmoor/knobots/pkg/client"
+	client "github.com/mattmoor/bindings/pkg/github"
 )
 
 func Get(ctx context.Context, owner, repo, title string) (*github.Milestone, error) {
-	ghc := client.New(ctx)
+	ghc, err := client.New(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	// Walk the pages of milestones looking for one matching our title.
 	lopt := &github.MilestoneListOptions{}
@@ -32,7 +35,10 @@ func Get(ctx context.Context, owner, repo, title string) (*github.Milestone, err
 }
 
 func Create(ctx context.Context, owner, repo, title string) (*github.Milestone, error) {
-	ghc := client.New(ctx)
+	ghc, err := client.New(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	m, _, err := ghc.Issues.CreateMilestone(ctx, owner, repo, &github.Milestone{
 		Title: &title,

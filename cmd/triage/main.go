@@ -7,7 +7,7 @@ import (
 
 	"github.com/google/go-github/github"
 
-	"github.com/mattmoor/knobots/pkg/client"
+	client "github.com/mattmoor/bindings/pkg/github"
 	"github.com/mattmoor/knobots/pkg/handler"
 	"github.com/mattmoor/knobots/pkg/milestone"
 )
@@ -66,7 +66,10 @@ func needsTriage(owner, repo string, number int) error {
 		return err
 	}
 
-	ghc := client.New(ctx)
+	ghc, err := client.New(ctx)
+	if err != nil {
+		return err
+	}
 	_, _, err = ghc.Issues.Edit(ctx, owner, repo, number, &github.IssueRequest{
 		Milestone: m.Number,
 	})

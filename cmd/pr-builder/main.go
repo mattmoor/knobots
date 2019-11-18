@@ -16,13 +16,20 @@ import (
 	"gopkg.in/src-d/go-git.v4/plumbing/object"
 	"gopkg.in/src-d/go-git.v4/plumbing/transport/http"
 
-	"github.com/mattmoor/knobots/pkg/client"
+	client "github.com/mattmoor/bindings/pkg/github"
 	"github.com/mattmoor/knobots/pkg/comment"
 )
 
+func must(s string, err error) string {
+	if err != nil {
+		panic(err)
+	}
+	return s
+}
+
 var (
-	username = os.Getenv("GITHUB_USERNAME")
-	password = os.Getenv("GITHUB_ACCESS_TOKEN")
+	username = must(client.ReadKey("username"))
+	password = must(client.AccessToken())
 
 	owner  = flag.String("organization", "", "The Github organization to which we're sending a PR")
 	repo   = flag.String("repository", "", "The Github repository to which we're sending a PR")
@@ -142,7 +149,10 @@ func main() {
 	}
 
 	ctx := context.Background()
-	ghc := client.New(ctx)
+	ghc, err := client.New(ctx)
+	if err != nil {
+		log.Fatalf("Error creating github client: %v", err)
+	}
 
 	// Head has the form source-owner:branch, per the Github API docs.
 	head := fmt.Sprintf("%s:%s", username, branchName)
@@ -167,7 +177,10 @@ func main() {
 
 func cleanupOlderPRs(name, owner, repo string) error {
 	ctx := context.Background()
-	ghc := client.New(ctx)
+	ghc, err := client.New(ctx)
+	if err != nil {
+		return err
+	}
 
 	closed := "closed"
 	lopt := &github.PullRequestListOptions{

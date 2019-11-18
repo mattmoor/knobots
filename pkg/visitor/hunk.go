@@ -6,13 +6,16 @@ import (
 	"github.com/google/go-github/github"
 	"sourcegraph.com/sourcegraph/go-diff/diff"
 
-	"github.com/mattmoor/knobots/pkg/client"
+	client "github.com/mattmoor/bindings/pkg/github"
 )
 
 type HunkCallback func(filename string, hunks []*diff.Hunk) (VisitControl, error)
 
 func Hunks(ctx context.Context, owner, repo string, num int, v HunkCallback) error {
-	ghc := client.New(ctx)
+	ghc, err := client.New(ctx)
+	if err != nil {
+		return err
+	}
 
 	lopt := &github.ListOptions{}
 	for {

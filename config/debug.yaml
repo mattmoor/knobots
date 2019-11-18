@@ -18,14 +18,9 @@
 #   name: debug-bot
   # labels:
   #   serving.knative.dev/visibility: cluster-local
+  #   github: comment
 # spec:
 #   template:
 #     spec:
 #       containers:
 #       - image: github.com/mattmoor/knobots/cmd/debug
-#         env:
-#         - name: GITHUB_ACCESS_TOKEN
-#           valueFrom:
-#             secretKeyRef:
-#               name: github-comment-secret
-#               key: accessToken

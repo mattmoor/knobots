@@ -13,8 +13,8 @@ import (
 
 	"github.com/google/go-github/github"
 
+	client "github.com/mattmoor/bindings/pkg/github"
 	"github.com/mattmoor/knobots/pkg/botinfo"
-	"github.com/mattmoor/knobots/pkg/client"
 	"github.com/mattmoor/knobots/pkg/comment"
 	"github.com/mattmoor/knobots/pkg/handler"
 	"github.com/mattmoor/knobots/pkg/visitor"
@@ -214,7 +214,10 @@ func HandleIssues(ie *github.IssuesEvent) error {
 	//  3. If we find any, then reopen the issue and leave a comment
 
 	ctx := context.Background()
-	ghc := client.New(ctx)
+	ghc, err := client.New(ctx)
+	if err != nil {
+		return err
+	}
 
 	// Determine the SHA of the default branch.
 	br, _, err := ghc.Repositories.GetBranch(ctx, owner, repo, ie.Repo.GetDefaultBranch())

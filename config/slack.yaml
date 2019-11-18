@@ -19,14 +19,9 @@ metadata:
   name: slack-bot
   labels:
     serving.knative.dev/visibility: cluster-local
+    slack: comment
 spec:
   template:
     spec:
       containers:
       - image: github.com/mattmoor/knobots/cmd/slack
-        env:
-        - name: SLACK_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: slack-secret
-              key: token

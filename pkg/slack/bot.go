@@ -3,8 +3,8 @@ package slack
 import (
 	"context"
 	"log"
-	"os"
 
+	slackbinding "github.com/mattmoor/bindings/pkg/slack"
 	"github.com/nlopes/slack"
 
 	"github.com/mattmoor/knobots/pkg/handler"
@@ -26,7 +26,11 @@ func (*dm) Handle(ctx context.Context, x interface{}) (handler.Response, error) 
 	log.Printf("Got event: %v", x)
 	dm := x.(*DirectMessage)
 
-	api := slack.New(os.Getenv("SLACK_TOKEN"))
+	api, err := slackbinding.New(ctx)
+	if err != nil {
+		log.Printf("error creating slack client: %v", err)
+		return nil, err
+	}
 
 	if len(dm.Emails) != 1 {
 		log.Printf("TOO MANY EMAILS: %v", dm)

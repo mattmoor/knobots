@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/go-github/github"
 
-	"github.com/mattmoor/knobots/pkg/client"
+	githubbinding "github.com/mattmoor/bindings/pkg/github"
 	"github.com/mattmoor/knobots/pkg/handler"
 )
 
@@ -26,8 +26,11 @@ func (*commitstatus) Handle(ctx context.Context, x interface{}) (handler.Respons
 
 	return nil, nil
 
-	ghc := client.New(ctx)
-	_, _, err := ghc.Repositories.CreateStatus(ctx, p.Owner, p.Repository, p.SHA, &github.RepoStatus{
+	ghc, err := githubbinding.New(ctx)
+	if err != nil {
+		return nil, err
+	}
+	_, _, err = ghc.Repositories.CreateStatus(ctx, p.Owner, p.Repository, p.SHA, &github.RepoStatus{
 		Context:     &p.Name,
 		State:       &p.State,
 		Description: &p.Description,

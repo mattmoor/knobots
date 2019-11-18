@@ -14,9 +14,9 @@ import (
 	buildv1alpha1 "github.com/knative/build/pkg/apis/build/v1alpha1"
 	buildclientset "github.com/knative/build/pkg/client/clientset/versioned"
 
+	client "github.com/mattmoor/bindings/pkg/github"
 	"github.com/mattmoor/knobots/pkg/botinfo"
 	"github.com/mattmoor/knobots/pkg/builds"
-	"github.com/mattmoor/knobots/pkg/client"
 	"github.com/mattmoor/knobots/pkg/comment"
 	"github.com/mattmoor/knobots/pkg/handler"
 	"github.com/mattmoor/knobots/pkg/reviewrequest"
@@ -165,7 +165,10 @@ func (gt *gotool) Handle(ctx context.Context, x interface{}) (handler.Response, 
 }
 
 func findPR(ctx context.Context, token, owner, repo string) (*github.PullRequest, error) {
-	ghc := client.New(ctx)
+	ghc, err := client.New(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	lopt := &github.PullRequestListOptions{}
 	for {

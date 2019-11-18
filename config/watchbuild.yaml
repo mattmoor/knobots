@@ -48,17 +48,12 @@ metadata:
   name: watchbuild-bot
   labels:
     serving.knative.dev/visibility: cluster-local
+    github: comment
 spec:
   template:
     spec:
       serviceAccountName: watchbuild
       containers:
       - image: github.com/mattmoor/knobots/cmd/watchbuild
-        env:
-        - name: GITHUB_ACCESS_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: github-comment-secret
-              key: accessToken
       # Give it ten minutes to run the build.
       timeoutSeconds: 600

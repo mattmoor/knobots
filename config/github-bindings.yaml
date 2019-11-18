@@ -1,0 +1,29 @@
+apiVersion: bindings.mattmoor.dev/v1alpha1
+kind: GithubBinding
+metadata:
+  name: comment-binding
+spec:
+  subject:
+    apiVersion: serving.knative.dev/v1
+    kind: Service
+    selector:
+      matchLabels:
+        github: comment
+
+  secret:
+    name: github-comment-secret
+---
+apiVersion: bindings.mattmoor.dev/v1alpha1
+kind: GithubBinding
+metadata:
+  name: hook-binding
+spec:
+  subject:
+    apiVersion: serving.knative.dev/v1
+    kind: Service
+    selector:
+      matchLabels:
+        github: hook
+
+  secret:
+    name: github-hook-secret

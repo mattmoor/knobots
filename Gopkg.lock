@@ -431,6 +431,18 @@
   revision = "81af80346b1a01caae0cbc27fd3c1ba5b11e189f"
 
 [[projects]]
+  branch = "master"
+  digest = "1:03445dff01bca3f8d898838f23f34ca55412c15c5b912a7a484ac4af246f4c58"
+  name = "github.com/mattmoor/bindings"
+  packages = [
+    "pkg/bindings",
+    "pkg/github",
+    "pkg/slack",
+  ]
+  pruneopts = "NUT"
+  revision = "a191c6fd1f7b96f9d3a1449ccac7f86d1e7bc41c"
+
+[[projects]]
   digest = "1:a4df73029d2c42fabcb6b41e327d2f87e685284ec03edf76921c267d9cfc9c23"
   name = "github.com/mitchellh/go-homedir"
   packages = ["."]
@@ -1131,19 +1143,21 @@
     "github.com/kelseyhightower/envconfig",
     "github.com/knative/build/pkg/apis/build/v1alpha1",
     "github.com/knative/build/pkg/client/clientset/versioned",
+    "github.com/mattmoor/bindings/pkg/github",
+    "github.com/mattmoor/bindings/pkg/slack",
     "github.com/nlopes/slack",
     "go.opencensus.io/plugin/ochttp",
     "go.opencensus.io/plugin/ochttp/propagation/b3",
     "go.opencensus.io/stats/view",
     "go.opencensus.io/trace",
     "go.opencensus.io/trace/propagation",
-    "golang.org/x/oauth2",
     "golang.org/x/tools/cmd/goimports",
     "gopkg.in/src-d/go-git.v4",
     "gopkg.in/src-d/go-git.v4/config",
     "gopkg.in/src-d/go-git.v4/plumbing",
     "gopkg.in/src-d/go-git.v4/plumbing/object",
     "gopkg.in/src-d/go-git.v4/plumbing/transport/http",
+    "k8s.io/api/core/v1",
     "k8s.io/apimachinery/pkg/apis/meta/v1",
     "k8s.io/apimachinery/pkg/watch",
     "k8s.io/client-go/kubernetes",

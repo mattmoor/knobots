@@ -48,17 +48,12 @@ metadata:
   name: dailybuild-bot
   labels:
     serving.knative.dev/visibility: cluster-local
+    github: comment
 spec:
   template:
     spec:
       serviceAccountName: dailybuild
       containers:
       - image: github.com/mattmoor/knobots/cmd/dailybuild
-        env:
-        - name: GITHUB_ACCESS_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: github-comment-secret
-              key: accessToken
       # Give it ten minutes to run the build.
       timeoutSeconds: 600
