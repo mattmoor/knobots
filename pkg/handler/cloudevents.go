@@ -1,23 +1,17 @@
 package handler
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"errors"
-	"io/ioutil"
 	"log"
 	"net/http"
-	"net/url"
+	"os"
 
 	"cloud.google.com/go/compute/metadata"
 	"contrib.go.opencensus.io/exporter/stackdriver"
-	"github.com/cloudevents/sdk-go"
+	cloudevents "github.com/cloudevents/sdk-go"
 	"github.com/cloudevents/sdk-go/pkg/cloudevents/client"
 	transporthttp "github.com/cloudevents/sdk-go/pkg/cloudevents/transport/http"
-	"github.com/google/uuid"
 	"github.com/kelseyhightower/envconfig"
-	"go.opencensus.io/plugin/ochttp"
 	"go.opencensus.io/plugin/ochttp/propagation/b3"
 	"go.opencensus.io/stats/view"
 	"go.opencensus.io/trace"
@@ -91,42 +85,21 @@ func gotEvent(h Interface) interface{} {
 
 func Send(resp Response) error {
 	// Use an http.RoundTripper that instruments all outgoing requests with stats and tracing.
-	client := &http.Client{Transport: &ochttp.Transport{Propagation: &b3.HTTPFormat{}}}
-
-	b, err := json.Marshal(resp)
+	// client := &http.Client{Transport: &ochttp.Transport{Propagation: &b3.HTTPFormat{}}}
+	client, err := cloudevents.NewDefaultClient()
 	if err != nil {
 		return err
 	}
 
-	req := &http.Request{
-		Method: http.MethodPost,
-		URL: &url.URL{
-			Scheme: "http",
-			Host:   "default-broker.default.svc.cluster.local",
-		},
-		Header: http.Header{
-			"Content-Type":   []string{"application/json"},
-			"ce-specversion": []string{cloudevents.VersionV03},
-			"ce-source":      []string{resp.GetSource()},
-			"ce-type":        []string{resp.GetType()},
-			"ce-id":          []string{uuid.New().String()},
-		},
-		Body: ioutil.NopCloser(bytes.NewBuffer(b)),
-	}
+	r := cloudevents.NewEvent(cloudevents.VersionV1)
+	r.SetType(resp.GetType())
+	r.SetSource(resp.GetSource())
+	r.SetDataContentType("application/json")
+	r.SetData(resp)
 
-	hr, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer hr.Body.Close()
-	body, err := ioutil.ReadAll(hr.Body)
-	if err != nil {
-		return err
-	}
-	if hr.StatusCode != http.StatusAccepted {
-		return errors.New(string(body))
-	}
-	return nil
+	ctx := cloudevents.ContextWithTarget(context.Background(), os.Getenv("K_SINK"))
+	_, _, err = client.Send(ctx, r)
+	return err
 }
 
 func Main(h Interface) {

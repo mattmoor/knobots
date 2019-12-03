@@ -130,7 +130,7 @@
   version = "v0.3.4"
 
 [[projects]]
-  digest = "1:7e05fbb13face7af6bf064ca3a8bbd8c4fcaff81e1d6ce430d8075b001ad5b82"
+  digest = "1:902544577dcb868a5ae31529d73a1ce5031e224923290caedf6176241ee304e0"
   name = "github.com/cloudevents/sdk-go"
   packages = [
     ".",
@@ -139,6 +139,7 @@
     "pkg/cloudevents/context",
     "pkg/cloudevents/datacodec",
     "pkg/cloudevents/datacodec/json",
+    "pkg/cloudevents/datacodec/text",
     "pkg/cloudevents/datacodec/xml",
     "pkg/cloudevents/observability",
     "pkg/cloudevents/transport",
@@ -146,8 +147,8 @@
     "pkg/cloudevents/types",
   ]
   pruneopts = "NUT"
-  revision = "9c1f61edb2fefdf4de9ccea47af1648e960f47f8"
-  version = "v0.8.0"
+  revision = "83240f19d5bfc05d8ec808e0b91edc2e643350c0"
+  version = "0.10.1"
 
 [[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
@@ -1221,7 +1222,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:870fc339a85bc5e3fdf03558a0be2d3215b51edfb509c6a6ae3d80cc8380e78d"
+  digest = "1:5bdf7d3fce78121856e12d49503171f9aa9f4a136c9b8c7910140e933234b63d"
   name = "knative.dev/pkg"
   packages = [
     "apis",
@@ -1234,6 +1235,7 @@
     "logging/logkey",
     "ptr",
     "signals",
+    "system",
   ]
   pruneopts = "NUT"
   revision = "53034608f64e82c8e892d46197f687edb6f78b93"
@@ -1284,7 +1286,6 @@
     "github.com/ghodss/yaml",
     "github.com/golang/dep/cmd/dep",
     "github.com/google/go-github/github",
-    "github.com/google/uuid",
     "github.com/kelseyhightower/envconfig",
     "github.com/mattmoor/bindings/pkg/github",
     "github.com/mattmoor/bindings/pkg/slack",
@@ -1310,6 +1311,7 @@
     "k8s.io/client-go/rest",
     "knative.dev/pkg/ptr",
     "knative.dev/pkg/signals",
+    "knative.dev/pkg/system",
     "knative.dev/serving/pkg/pool",
     "sourcegraph.com/sourcegraph/go-diff/diff",
   ]
