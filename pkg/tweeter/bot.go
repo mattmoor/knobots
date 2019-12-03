@@ -3,8 +3,6 @@ package tweeter
 import (
 	"context"
 
-	buildclientset "github.com/knative/build/pkg/client/clientset/versioned"
-
 	"github.com/mattmoor/bindings/pkg/twitter"
 
 	"github.com/mattmoor/knobots/pkg/handler"
@@ -15,7 +13,7 @@ type tweeter struct {
 
 var _ handler.Interface = (*tweeter)(nil)
 
-func New(bc buildclientset.Interface) handler.Interface {
+func New() handler.Interface {
 	return &tweeter{}
 }
 
