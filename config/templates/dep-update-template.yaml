@@ -1,16 +1,21 @@
-apiVersion: build.knative.dev/v1alpha1
-kind: BuildTemplate
+apiVersion: tekton.dev/v1alpha1
+kind: Task
 metadata:
   name: dep-update
+
 spec:
-  parameters:
-  - name: ORGANIZATION
-  - name: REPOSITORY
-  - name: DEPENDENCIES
-  - name: BRANCH
-    default: master
-  - name: ASSIGNEE
-    default: mattmoor
+  inputs:
+    params:
+    - name: ORGANIZATION
+    - name: REPOSITORY
+    - name: DEPENDENCIES
+    - name: BRANCH
+      default: master
+    - name: ASSIGNEE
+      default: mattmoor
+    resources:
+    - name: source
+      type: git
 
   steps:
   - name: dep
@@ -24,34 +29,34 @@ spec:
     - |
       set -e
       set -x
-      export PARENT_DIR=${GOPATH}/src/github.com/${ORGANIZATION}
-      if [ "${REPOSITORY}" == "pkg" ]
+      export PARENT_DIR=${GOPATH}/src/github.com/$(inputs.params.ORGANIZATION)
+      if [ "$(inputs.params.REPOSITORY)" == "pkg" ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
-      elif [ "${REPOSITORY}" == "sample-controller" ]
+      elif [ "$(inputs.params.REPOSITORY)" == "sample-controller" ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
-      elif [ "${REPOSITORY}" == "test-infra" ]
+      elif [ "$(inputs.params.REPOSITORY)" == "test-infra" ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
-      elif [ "${REPOSITORY}" == serving ]
+      elif [ "$(inputs.params.REPOSITORY)" == serving ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
-      elif [ "${REPOSITORY}" == eventing ]
+      elif [ "$(inputs.params.REPOSITORY)" == eventing ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
-      elif [ "${REPOSITORY}" == eventing-contrib ]
+      elif [ "$(inputs.params.REPOSITORY)" == eventing-contrib ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
-      elif [ "${REPOSITORY}" == "caching" ]
+      elif [ "$(inputs.params.REPOSITORY)" == "caching" ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
       fi
       mkdir -p ${PARENT_DIR}
-      ln -s /workspace ${PARENT_DIR}/${REPOSITORY}
-      cd ${PARENT_DIR}/${REPOSITORY}
-      export REPO_ROOT_DIR=${PARENT_DIR}/${REPOSITORY}
-      dep ensure -update ${DEPENDENCIES}
+      ln -s /workspace/source ${PARENT_DIR}/$(inputs.params.REPOSITORY)
+      cd ${PARENT_DIR}/$(inputs.params.REPOSITORY)
+      export REPO_ROOT_DIR=${PARENT_DIR}/$(inputs.params.REPOSITORY)
+      dep ensure -update $(inputs.params.DEPENDENCIES)
       go get -u github.com/google/licenseclassifier
       go get -u github.com/knative/test-infra/tools/dep-collector
       export PATH=${PATH}:${GOPATH}/bin
@@ -66,15 +71,16 @@ spec:
   - name: open-pull-request
     image: github.com/mattmoor/knobots/cmd/pr-builder
     args:
-    - "-organization=${ORGANIZATION}"
-    - "-repository=${REPOSITORY}"
+    - "-workspace=/workspace/source"
+    - "-organization=$(inputs.params.ORGANIZATION)"
+    - "-repository=$(inputs.params.REPOSITORY)"
     - "-title=Auto-update dependencies"
-    - "-branch=${BRANCH}"
+    - "-branch=$(inputs.params.BRANCH)"
     - "-body"
     - |
         Produced via:
-          `dep ensure -update ${DEPENDENCIES}`
-        /assign ${ASSIGNEE}
+          `dep ensure -update $(inputs.params.DEPENDENCIES)`
+        /assign $(inputs.params.ASSIGNEE)
     env:
     # Inject the generated pod name so that we can use it as a
     # pseudo-random branch name (and associate open PRs with

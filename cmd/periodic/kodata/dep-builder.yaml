@@ -1,14 +1,23 @@
-apiVersion: build.knative.dev/v1alpha1
-kind: Build
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
 metadata:
   generateName: dep-builder-
 spec:
-  source:
-    git:
-      url: https://github.com/mattmoor/dep.git
-      revision: master
-  template:
+  taskRef:
     name: kaniko
-    arguments:
-    - name: IMAGE
-      value: gcr.io/mattmoor-knative/dep:latest
+  inputs:
+    resources:
+    - name: source
+      resourceSpec:
+        type: git
+        params:
+        - name: url
+          value: https://github.com/mattmoor/dep.git
+  outputs:
+    resources:
+    - name: image
+      resourceSpec:
+        type: image
+        params:
+        - name: url
+          value: gcr.io/mattmoor-knative/dep:latest

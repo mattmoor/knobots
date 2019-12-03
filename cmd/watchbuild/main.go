@@ -4,7 +4,7 @@ import (
 	"flag"
 	"log"
 
-	buildclientset "github.com/knative/build/pkg/client/clientset/versioned"
+	tektonclientset "github.com/tektoncd/pipeline/pkg/client/clientset/versioned"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 
@@ -22,12 +22,12 @@ func main() {
 
 	kc, err := kubernetes.NewForConfig(cfg)
 	if err != nil {
-		log.Fatalf("Unable to build Build client: %v", err)
+		log.Fatalf("Unable to build K8s client: %v", err)
 	}
 
-	bc, err := buildclientset.NewForConfig(cfg)
+	bc, err := tektonclientset.NewForConfig(cfg)
 	if err != nil {
-		log.Fatalf("Unable to build Build client: %v", err)
+		log.Fatalf("Unable to build Tekton client: %v", err)
 	}
 
 	handler.Main(watchbuild.New(kc, bc))

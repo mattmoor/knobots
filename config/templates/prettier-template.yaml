@@ -1,15 +1,20 @@
-apiVersion: build.knative.dev/v1alpha1
-kind: BuildTemplate
+apiVersion: tekton.dev/v1alpha1
+kind: Task
 metadata:
   name: prettier
+
 spec:
-  parameters:
-  - name: ORGANIZATION
-  - name: REPOSITORY
-  - name: BRANCH
-    default: master
-  - name: ASSIGNEE
-    default: mattmoor
+  inputs:
+    params:
+    - name: ORGANIZATION
+    - name: REPOSITORY
+    - name: BRANCH
+      default: master
+    - name: ASSIGNEE
+      default: mattmoor
+    resources:
+    - name: source
+      type: git
 
   steps:
   - name: prettier
@@ -21,15 +26,16 @@ spec:
   - name: open-pull-request
     image: github.com/mattmoor/knobots/cmd/pr-builder
     args:
-    - "-organization=${ORGANIZATION}"
-    - "-repository=${REPOSITORY}"
+    - "-workspace=/workspace/source"
+    - "-organization=$(inputs.params.ORGANIZATION)"
+    - "-repository=$(inputs.params.REPOSITORY)"
     - "-title=Format markdown"
-    - "-branch=${BRANCH}"
+    - "-branch=$(inputs.params.BRANCH)"
     - "-body"
     - |
         Produced via:
           `prettier --write --prose-wrap=always $(find -name '*.md' | grep -v vendor | grep -v .github)`
-        /assign ${ASSIGNEE}
+        /assign $(inputs.params.ASSIGNEE)
 
     env:
     # Inject the generated pod name so that we can use it as a

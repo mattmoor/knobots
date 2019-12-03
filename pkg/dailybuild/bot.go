@@ -3,8 +3,8 @@ package dailybuild
 import (
 	"context"
 
-	buildv1alpha1 "github.com/knative/build/pkg/apis/build/v1alpha1"
-	buildclientset "github.com/knative/build/pkg/client/clientset/versioned"
+	tektonv1alpha1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1alpha1"
+	tektonclientset "github.com/tektoncd/pipeline/pkg/client/clientset/versioned"
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/mattmoor/knobots/pkg/handler"
@@ -12,16 +12,16 @@ import (
 )
 
 type db struct {
-	KubeClient  kubernetes.Interface
-	BuildClient buildclientset.Interface
+	KubeClient kubernetes.Interface
+	Client     tektonclientset.Interface
 }
 
 var _ handler.Interface = (*db)(nil)
 
-func New(ks kubernetes.Interface, bc buildclientset.Interface) handler.Interface {
+func New(ks kubernetes.Interface, bc tektonclientset.Interface) handler.Interface {
 	return &db{
-		KubeClient:  ks,
-		BuildClient: bc,
+		KubeClient: ks,
+		Client:     bc,
 	}
 }
 
@@ -30,7 +30,7 @@ func (*db) GetType() interface{} {
 }
 
 type Request struct {
-	Build *buildv1alpha1.Build `json:"build"`
+	TaskRun *tektonv1alpha1.TaskRun `json:"taskRun"`
 }
 
 var _ handler.Response = (*Request)(nil)
@@ -40,18 +40,18 @@ func (*Request) GetSource() string {
 }
 
 func (*Request) GetType() string {
-	return "dev.mattmoor.knobots.dailybuild"
+	return "dev.mattmoor.knobots.dailytaskrun"
 }
 
 func (gt *db) Handle(ctx context.Context, x interface{}) (handler.Response, error) {
 	rrr := x.(*Request)
 
-	build, err := gt.BuildClient.BuildV1alpha1().Builds(rrr.Build.Namespace).Create(rrr.Build)
+	taskrun, err := gt.Client.TektonV1alpha1().TaskRuns(rrr.TaskRun.Namespace).Create(rrr.TaskRun)
 	if err != nil {
 		return nil, err
 	}
 
 	return &watchbuild.Request{
-		Build: build,
+		TaskRun: taskrun,
 	}, nil
 }

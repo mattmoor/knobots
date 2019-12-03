@@ -31,9 +31,10 @@ var (
 	username = must(client.ReadKey("username"))
 	password = must(client.AccessToken())
 
-	owner  = flag.String("organization", "", "The Github organization to which we're sending a PR")
-	repo   = flag.String("repository", "", "The Github repository to which we're sending a PR")
-	branch = flag.String("branch", "master", "The branch we are building a PR against.")
+	workspace = flag.String("workspace", "", "The workspace directory to turn into a PR")
+	owner     = flag.String("organization", "", "The Github organization to which we're sending a PR")
+	repo      = flag.String("repository", "", "The Github repository to which we're sending a PR")
+	branch    = flag.String("branch", "master", "The branch we are building a PR against.")
 
 	// TODO(mattmoor): Figure out how to dodge CLA bot...
 	signature = &object.Signature{
@@ -57,7 +58,7 @@ func main() {
 		log.Fatalf("Error cleaning up PRs: %v", err)
 	}
 
-	r, err := git.PlainOpen("/workspace")
+	r, err := git.PlainOpen(*workspace)
 	if err != nil {
 		log.Fatalf("Error opening /workspace: %v", err)
 	}

@@ -1,16 +1,20 @@
-apiVersion: build.knative.dev/v1alpha1
-kind: Build
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
 metadata:
   generateName: prettier-knative-serving-
   namespace: default
 spec:
-  source:
-    git:
-      url: https://github.com/knative/serving.git
-      revision: master
-  template:
+  taskRef:
     name: prettier
-    arguments:
+  inputs:
+    resources:
+    - name: source
+      resourceSpec:
+        type: git
+        params:
+        - name: url
+          value: https://github.com/knative/serving.git
+    params:
     - name: ORGANIZATION
       value: knative
     - name: REPOSITORY

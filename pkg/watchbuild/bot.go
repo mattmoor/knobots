@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/ghodss/yaml"
-	buildv1alpha1 "github.com/knative/build/pkg/apis/build/v1alpha1"
-	buildclientset "github.com/knative/build/pkg/client/clientset/versioned"
+	tektonv1alpha1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1alpha1"
+	tektonclientset "github.com/tektoncd/pipeline/pkg/client/clientset/versioned"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
@@ -21,16 +21,16 @@ import (
 )
 
 type db struct {
-	KubeClient  kubernetes.Interface
-	BuildClient buildclientset.Interface
+	KubeClient kubernetes.Interface
+	Client     tektonclientset.Interface
 }
 
 var _ handler.Interface = (*db)(nil)
 
-func New(ks kubernetes.Interface, bc buildclientset.Interface) handler.Interface {
+func New(ks kubernetes.Interface, bc tektonclientset.Interface) handler.Interface {
 	return &db{
-		KubeClient:  ks,
-		BuildClient: bc,
+		KubeClient: ks,
+		Client:     bc,
 	}
 }
 
@@ -39,8 +39,8 @@ func (*db) GetType() interface{} {
 }
 
 type Request struct {
-	Build *buildv1alpha1.Build `json:"build"`
-	Count int                  `json:"count"`
+	TaskRun *tektonv1alpha1.TaskRun `json:"taskRun"`
+	Count   int                     `json:"count"`
 }
 
 var _ handler.Response = (*Request)(nil)
@@ -50,15 +50,15 @@ func (*Request) GetSource() string {
 }
 
 func (*Request) GetType() string {
-	return "dev.mattmoor.knobots.watchbuild"
+	return "dev.mattmoor.knobots.watchtaskrun"
 }
 
 func (gt *db) Handle(ctx context.Context, x interface{}) (handler.Response, error) {
 	rrr := x.(*Request)
 
-	log.Printf("Watching build: %s (count: %d)", rrr.Build.Name, rrr.Count)
+	log.Printf("Watching taskrun: %s (count: %d)", rrr.TaskRun.Name, rrr.Count)
 
-	wi, err := gt.BuildClient.BuildV1alpha1().Builds(rrr.Build.Namespace).Watch(metav1.ListOptions{
+	wi, err := gt.Client.TektonV1alpha1().TaskRuns(rrr.TaskRun.Namespace).Watch(metav1.ListOptions{
 		TimeoutSeconds: ptr.Int64(600),
 	})
 	if err != nil {
@@ -71,24 +71,24 @@ func (gt *db) Handle(ctx context.Context, x interface{}) (handler.Response, erro
 		select {
 		case <-timeout:
 			return &Request{
-				Build: rrr.Build,
-				Count: rrr.Count + 1,
+				TaskRun: rrr.TaskRun,
+				Count:   rrr.Count + 1,
 			}, nil
 
 		case event, ok := <-wi.ResultChan():
 			if !ok {
-				log.Printf("Unexpected end of watch for build: %s (trying again)", rrr.Build.Name)
+				log.Printf("Unexpected end of watch for taskrun: %s (trying again)", rrr.TaskRun.Name)
 				return &Request{
-					Build: rrr.Build,
-					Count: rrr.Count + 1,
+					TaskRun: rrr.TaskRun,
+					Count:   rrr.Count + 1,
 				}, nil
 			}
 			if event.Type != watch.Modified {
 				break
 			}
-			b := event.Object.(*buildv1alpha1.Build)
-			if b.Name != rrr.Build.Name {
-				// Not our build
+			b := event.Object.(*tektonv1alpha1.TaskRun)
+			if b.Name != rrr.TaskRun.Name {
+				// Not our taskrun
 				break
 			}
 
@@ -99,28 +99,28 @@ func (gt *db) Handle(ctx context.Context, x interface{}) (handler.Response, erro
 				break
 
 			case c.Status == "True":
-				log.Printf("Build %s succeeded", b.Name)
-				return nil, gt.BuildClient.BuildV1alpha1().Builds(rrr.Build.Namespace).Delete(
-					rrr.Build.Name,
+				log.Printf("TaskRun %s succeeded", b.Name)
+				return nil, gt.Client.TektonV1alpha1().TaskRuns(rrr.TaskRun.Namespace).Delete(
+					rrr.TaskRun.Name,
 					&metav1.DeleteOptions{},
 				)
 
 			case c.Status == "False":
-				// Build failed
-				log.Printf("Build %s failed", b.Name)
+				// TaskRun failed
+				log.Printf("TaskRun %s failed", b.Name)
 
-				byaml, err := yaml.Marshal(rrr.Build)
+				byaml, err := yaml.Marshal(rrr.TaskRun)
 				if err != nil {
-					log.Printf("error serializing build: %v", err)
+					log.Printf("error serializing taskrun: %v", err)
 					return nil, err
 				}
 
 				attributes := map[string]string{
-					"pod":   fmt.Sprintf("%s/%s", b.Status.Cluster.Namespace, b.Status.Cluster.PodName),
-					"build": fmt.Sprintf("\n```\n%s\n```\n", string(byaml)),
+					"pod":     fmt.Sprintf("%s/%s", b.Namespace, b.Status.PodName),
+					"taskrun": fmt.Sprintf("\n```\n%s\n```\n", string(byaml)),
 				}
 
-				ns, name := b.Status.Cluster.Namespace, b.Status.Cluster.PodName
+				ns, name := b.Namespace, b.Status.PodName
 				pod, err := gt.KubeClient.CoreV1().Pods(ns).Get(name, metav1.GetOptions{})
 				if err != nil {
 					log.Printf("error fetching pod: %v", err)
@@ -149,10 +149,10 @@ func (gt *db) Handle(ctx context.Context, x interface{}) (handler.Response, erro
 				}
 
 				return slack.ErrorReport(
-						"daily build failed",
+						"daily taskrun failed",
 						attributes,
-					), gt.BuildClient.BuildV1alpha1().Builds(rrr.Build.Namespace).Delete(
-						rrr.Build.Name,
+					), gt.Client.TektonV1alpha1().TaskRuns(rrr.TaskRun.Namespace).Delete(
+						rrr.TaskRun.Name,
 						&metav1.DeleteOptions{},
 					)
 			}

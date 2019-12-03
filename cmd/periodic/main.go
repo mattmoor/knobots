@@ -8,9 +8,10 @@ import (
 	"path/filepath"
 
 	"github.com/ghodss/yaml"
-	buildv1alpha1 "github.com/knative/build/pkg/apis/build/v1alpha1"
 	"github.com/mattmoor/knobots/pkg/dailybuild"
 	"github.com/mattmoor/knobots/pkg/handler"
+	tektonv1alpha1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1alpha1"
+	"knative.dev/pkg/system"
 	"knative.dev/serving/pkg/pool"
 )
 
@@ -19,12 +20,15 @@ func buildPath(path string) error {
 	if err != nil {
 		return err
 	}
-	build := &buildv1alpha1.Build{}
-	if err := yaml.Unmarshal(b, build); err != nil {
+	log.Printf("Got(%q): %s", path, string(b))
+	taskrun := &tektonv1alpha1.TaskRun{}
+	if err := yaml.Unmarshal(b, taskrun); err != nil {
 		return err
 	}
+	taskrun.Namespace = system.Namespace()
+	log.Printf("Send(%q): %+v", path, taskrun)
 	return handler.Send(&dailybuild.Request{
-		Build: build,
+		TaskRun: taskrun,
 	})
 }
 

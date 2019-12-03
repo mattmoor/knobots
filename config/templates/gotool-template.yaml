@@ -1,22 +1,28 @@
-apiVersion: build.knative.dev/v1alpha1
-kind: BuildTemplate
+apiVersion: tekton.dev/v1alpha1
+kind: Task
 metadata:
   name: gotool
+
 spec:
-  parameters:
-  - name: ORGANIZATION
-  - name: REPOSITORY
-  - name: BRANCH
-    default: master
-  - name: ASSIGNEE
-    default: mattmoor
-  - name: TOKEN
-    default: ""
+  inputs:
+    params:
+    - name: ORGANIZATION
+    - name: REPOSITORY
+    - name: BRANCH
+      default: master
+    - name: ASSIGNEE
+      default: mattmoor
+    - name: TOKEN
+      default: ""
+    resources:
+    - name: source
+      type: git
 
   steps:
   - name: gofmt
     image: golang
     command: ["/bin/bash", "-c"]
+    workingdir: "/workspace/source"
     args: ["gofmt -s -w $(find -path './vendor' -prune -o -type f -name '*.go' -print)"]
 
   - name: goimports
@@ -26,32 +32,32 @@ spec:
     - |
       set -e
       set -x
-      export PARENT_DIR=${GOPATH}/src/github.com/${ORGANIZATION}
-      if [ "${REPOSITORY}" == "pkg" ]
+      export PARENT_DIR=${GOPATH}/src/github.com/$(inputs.params.ORGANIZATION)
+      if [ "$(inputs.params.REPOSITORY)" == "pkg" ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
-      elif [ "${REPOSITORY}" == "sample-controller" ]
+      elif [ "$(inputs.params.REPOSITORY)" == "sample-controller" ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
-      elif [ "${REPOSITORY}" == "test-infra" ]
+      elif [ "$(inputs.params.REPOSITORY)" == "test-infra" ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
-      elif [ "${REPOSITORY}" == serving ]
+      elif [ "$(inputs.params.REPOSITORY)" == serving ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
-      elif [ "${REPOSITORY}" == eventing ]
+      elif [ "$(inputs.params.REPOSITORY)" == eventing ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
-      elif [ "${REPOSITORY}" == eventing-contrib ]
+      elif [ "$(inputs.params.REPOSITORY)" == eventing-contrib ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
-      elif [ "${REPOSITORY}" == "caching" ]
+      elif [ "$(inputs.params.REPOSITORY)" == "caching" ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
       fi
       mkdir -p ${PARENT_DIR}
-      ln -s /workspace ${PARENT_DIR}/${REPOSITORY}
-      cd ${PARENT_DIR}/${REPOSITORY}
+      ln -s /workspace ${PARENT_DIR}/$(inputs.params.REPOSITORY)
+      cd ${PARENT_DIR}/$(inputs.params.REPOSITORY)
       /ko-app/goimports -w $(find -name '*.go' | grep -v vendor)
     env:
     - name: GOPATH
@@ -60,17 +66,18 @@ spec:
   - name: open-pull-request
     image: github.com/mattmoor/knobots/cmd/pr-builder
     args:
-    - "-organization=${ORGANIZATION}"
-    - "-repository=${REPOSITORY}"
+    - "-workspace=/workspace/source"
+    - "-organization=$(inputs.params.ORGANIZATION)"
+    - "-repository=$(inputs.params.REPOSITORY)"
     - "-title=golang format tools"
-    - "-branch=${BRANCH}"
-    - "-token=${TOKEN}"
+    - "-branch=$(inputs.params.BRANCH)"
+    - "-token=$(inputs.params.TOKEN)"
     - "-body"
     - |
         Produced via:
           `gofmt -s -w $(find -path './vendor' -prune -o -type f -name '*.go' -print))`
           `goimports -w $(find -name '*.go' | grep -v vendor)`
-        /assign ${ASSIGNEE}
+        /assign $(inputs.params.ASSIGNEE)
     env:
     # Inject the generated pod name so that we can use it as a
     # pseudo-random branch name (and associate open PRs with

@@ -1,16 +1,20 @@
-apiVersion: build.knative.dev/v1alpha1
-kind: Build
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
 metadata:
   generateName: misspell-knative-eventing-operator-
   namespace: default
 spec:
-  source:
-    git:
-      url: https://github.com/knative/eventing-operator.git
-      revision: master
-  template:
+  taskRef:
     name: misspell
-    arguments:
+  inputs:
+    resources:
+    - name: source
+      resourceSpec:
+        type: git
+        params:
+        - name: url
+          value: https://github.com/knative/eventing-operator.git
+    params:
     - name: ORGANIZATION
       value: knative
     - name: REPOSITORY

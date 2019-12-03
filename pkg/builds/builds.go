@@ -8,23 +8,23 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
 
-	buildv1alpha1 "github.com/knative/build/pkg/apis/build/v1alpha1"
-	buildclientset "github.com/knative/build/pkg/client/clientset/versioned"
+	tektonv1alpha1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1alpha1"
+	tektonclientset "github.com/tektoncd/pipeline/pkg/client/clientset/versioned"
 	"knative.dev/pkg/ptr"
 )
 
-func Run(bc buildclientset.Interface, build *buildv1alpha1.Build, f func(*buildv1alpha1.Build) error) error {
-	build, err := bc.BuildV1alpha1().Builds(build.Namespace).Create(build)
+func Run(bc tektonclientset.Interface, taskrun *tektonv1alpha1.TaskRun, f func(*tektonv1alpha1.TaskRun) error) error {
+	taskrun, err := bc.TektonV1alpha1().TaskRuns(taskrun.Namespace).Create(taskrun)
 	if err != nil {
 		return err
 	}
 	// Cleanup behind ourselves.
-	// TODO(mattmoor): Consider leaving around failed builds?
+	// TODO(mattmoor): Consider leaving around failed taskruns?
 	defer func() {
-		bc.BuildV1alpha1().Builds(build.Namespace).Delete(build.Name, &metav1.DeleteOptions{})
+		bc.TektonV1alpha1().TaskRuns(taskrun.Namespace).Delete(taskrun.Name, &metav1.DeleteOptions{})
 	}()
 
-	wi, err := bc.BuildV1alpha1().Builds(build.Namespace).Watch(metav1.ListOptions{
+	wi, err := bc.TektonV1alpha1().TaskRuns(taskrun.Namespace).Watch(metav1.ListOptions{
 		TimeoutSeconds: ptr.Int64(600),
 	})
 	if err != nil {
@@ -36,19 +36,19 @@ func Run(bc buildclientset.Interface, build *buildv1alpha1.Build, f func(*buildv
 	for {
 		select {
 		case <-timeout:
-			return fmt.Errorf("Timed out waiting for build %s", build.Name)
+			return fmt.Errorf("Timed out waiting for taskrun %s", taskrun.Name)
 
 		case event, ok := <-wi.ResultChan():
 			if !ok {
-				log.Printf("Unexpected end of watch for build: %s", build.Name)
+				log.Printf("Unexpected end of watch for taskrun: %s", taskrun.Name)
 				return nil
 			}
 			if event.Type != watch.Modified {
 				break
 			}
-			b := event.Object.(*buildv1alpha1.Build)
-			if b.Name != build.Name {
-				// Not our build
+			b := event.Object.(*tektonv1alpha1.TaskRun)
+			if b.Name != taskrun.Name {
+				// Not our taskrun
 				break
 			}
 			c := b.Status.GetCondition("Succeeded")
