@@ -70,9 +70,10 @@ func gotEvent(h Interface) interface{} {
 			return nil
 		}
 
-		r := cloudevents.NewEvent(cloudevents.VersionV03)
+		r := cloudevents.NewEvent(cloudevents.VersionV1)
 		r.SetType(response.GetType())
 		r.SetSource(response.GetSource())
+		r.SetDataContentType("application/json")
 		r.SetData(response)
 
 		resp.RespondWith(http.StatusOK, &r)
