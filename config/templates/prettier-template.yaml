@@ -36,6 +36,7 @@ spec:
         Produced via:
           `prettier --write --prose-wrap=always $(find -name '*.md' | grep -v vendor | grep -v .github)`
         /assign $(inputs.params.ASSIGNEE)
+        /cc $(inputs.params.ASSIGNEE)
 
     env:
     # Inject the generated pod name so that we can use it as a

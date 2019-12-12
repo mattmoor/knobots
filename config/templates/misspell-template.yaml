@@ -35,6 +35,8 @@ spec:
         Produced via:
           `github.com/client9/misspell`
         /assign $(inputs.params.ASSIGNEE)
+        /cc $(inputs.params.ASSIGNEE)
+
     env:
     # Inject the generated pod name so that we can use it as a
     # pseudo-random branch name (and associate open PRs with

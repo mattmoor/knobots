@@ -78,6 +78,8 @@ spec:
           `gofmt -s -w $(find -path './vendor' -prune -o -type f -name '*.go' -print))`
           `goimports -w $(find -name '*.go' | grep -v vendor)`
         /assign $(inputs.params.ASSIGNEE)
+        /cc $(inputs.params.ASSIGNEE)
+
     env:
     # Inject the generated pod name so that we can use it as a
     # pseudo-random branch name (and associate open PRs with
