@@ -4,7 +4,6 @@ metadata:
   name: sockeye-trigger
   namespace: default
 spec:
-  filter: {}
   subscriber:
     ref:
       apiVersion: serving.knative.dev/v1

@@ -5,7 +5,7 @@ metadata:
   namespace: default
 spec:
   filter:
-    sourceAndType:
+    attributes:
       type: dev.mattmoor.knobots.reviewrequest
   subscriber:
     ref:

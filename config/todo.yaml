@@ -5,7 +5,7 @@
 #   namespace: default
 # spec:
 #   filter:
-#     sourceAndType:
+#     attributes:
 #       type: dev.knative.source.github.pull_request
 #   subscriber:
 #     ref:
@@ -20,7 +20,7 @@
 #   namespace: default
 # spec:
 #   filter:
-#     sourceAndType:
+#     attributes:
 #       type: dev.knative.source.github.issues
 #   subscriber:
 #     ref:
