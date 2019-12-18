@@ -127,7 +127,7 @@ func (gt *db) Handle(ctx context.Context, x interface{}) (handler.Response, erro
 					return nil, err
 				}
 
-				for _, c := range pod.Spec.InitContainers {
+				for _, c := range append(pod.Spec.InitContainers, pod.Spec.Containers...) {
 					options := &corev1.PodLogOptions{
 						Container: c.Name,
 						// Get everything

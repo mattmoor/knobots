@@ -1,0 +1,23 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
+metadata:
+  generateName: gotool-tekton-pipeline-
+  namespace: default
+spec:
+  taskRef:
+    name: gotool
+  inputs:
+    resources:
+    - name: source
+      resourceSpec:
+        type: git
+        params:
+        - name: url
+          value: https://github.com/tektoncd/pipeline.git
+    params:
+    - name: ORGANIZATION
+      value: tektoncd
+    - name: REPOSITORY
+      value: pipeline
+    - name: ASSIGNEE
+      value: ImJasonH

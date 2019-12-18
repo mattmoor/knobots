@@ -23,7 +23,7 @@ spec:
     image: golang
     command: ["/bin/bash", "-c"]
     workingdir: "/workspace/source"
-    args: ["gofmt -s -w $(find -path './vendor' -prune -o -type f -name '*.go' -print)"]
+    args: ["gofmt -s -w $(find -path './vendor' -prune -path './third_party' -prune -o -type f -name '*.go' -print)"]
 
   - name: goimports
     image: github.com/mattmoor/knobots/vendor/golang.org/x/tools/cmd/goimports
@@ -56,7 +56,7 @@ spec:
         export PARENT_DIR=${GOPATH}/src/knative.dev
       fi
       mkdir -p ${PARENT_DIR}
-      ln -s /workspace ${PARENT_DIR}/$(inputs.params.REPOSITORY)
+      ln -s /workspace/source ${PARENT_DIR}/$(inputs.params.REPOSITORY)
       cd ${PARENT_DIR}/$(inputs.params.REPOSITORY)
       /ko-app/goimports -w $(find -name '*.go' | grep -v vendor)
     env:

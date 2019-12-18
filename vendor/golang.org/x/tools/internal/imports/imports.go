@@ -6,19 +6,22 @@
 
 // Package imports implements a Go pretty-printer (like package "go/format")
 // that also adds or removes import statements as necessary.
-package imports // import "golang.org/x/tools/imports"
+package imports
 
 import (
 	"bufio"
 	"bytes"
 	"fmt"
 	"go/ast"
+	"go/build"
 	"go/format"
 	"go/parser"
 	"go/printer"
 	"go/token"
 	"io"
 	"io/ioutil"
+	"log"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -26,8 +29,10 @@ import (
 	"golang.org/x/tools/go/ast/astutil"
 )
 
-// Options specifies options for processing files.
+// Options is golang.org/x/tools/imports.Options with extra internal-only options.
 type Options struct {
+	Env *ProcessEnv // The environment to use. Note: this contains the cached module and filesystem state.
+
 	Fragment  bool // Accept fragment of a source file (no package statement)
 	AllErrors bool // Report all errors (not just the first 10 on different lines)
 
@@ -38,22 +43,11 @@ type Options struct {
 	FormatOnly bool // Disable the insertion and deletion of imports
 }
 
-// Process formats and adjusts imports for the provided file.
-// If opt is nil the defaults are used.
-//
-// Note that filename's directory influences which imports can be chosen,
-// so it is important that filename be accurate.
-// To process data ``as if'' it were in filename, pass the data as a non-nil src.
-func Process(filename string, src []byte, opt *Options) ([]byte, error) {
-	if opt == nil {
-		opt = &Options{Comments: true, TabIndent: true, TabWidth: 8}
-	}
-	if src == nil {
-		b, err := ioutil.ReadFile(filename)
-		if err != nil {
-			return nil, err
-		}
-		src = b
+// Process implements golang.org/x/tools/imports.Process with explicit context in env.
+func Process(filename string, src []byte, opt *Options) (formatted []byte, err error) {
+	src, opt, err = initialize(filename, src, opt)
+	if err != nil {
+		return nil, err
 	}
 
 	fileSet := token.NewFileSet()
@@ -63,12 +57,123 @@ func Process(filename string, src []byte, opt *Options) ([]byte, error) {
 	}
 
 	if !opt.FormatOnly {
-		if err := fixImports(fileSet, file, filename); err != nil {
+		if err := fixImports(fileSet, file, filename, opt.Env); err != nil {
 			return nil, err
 		}
 	}
+	return formatFile(fileSet, file, src, adjust, opt)
+}
 
-	sortImports(fileSet, file)
+// FixImports returns a list of fixes to the imports that, when applied,
+// will leave the imports in the same state as Process.
+//
+// Note that filename's directory influences which imports can be chosen,
+// so it is important that filename be accurate.
+func FixImports(filename string, src []byte, opt *Options) (fixes []*ImportFix, err error) {
+	src, opt, err = initialize(filename, src, opt)
+	if err != nil {
+		return nil, err
+	}
+
+	fileSet := token.NewFileSet()
+	file, _, err := parse(fileSet, filename, src, opt)
+	if err != nil {
+		return nil, err
+	}
+
+	return getFixes(fileSet, file, filename, opt.Env)
+}
+
+// ApplyFixes applies all of the fixes to the file and formats it. extraMode
+// is added in when parsing the file.
+func ApplyFixes(fixes []*ImportFix, filename string, src []byte, opt *Options, extraMode parser.Mode) (formatted []byte, err error) {
+	src, opt, err = initialize(filename, src, opt)
+	if err != nil {
+		return nil, err
+	}
+
+	// Don't use parse() -- we don't care about fragments or statement lists
+	// here, and we need to work with unparseable files.
+	fileSet := token.NewFileSet()
+	parserMode := parser.Mode(0)
+	if opt.Comments {
+		parserMode |= parser.ParseComments
+	}
+	if opt.AllErrors {
+		parserMode |= parser.AllErrors
+	}
+	parserMode |= extraMode
+
+	file, err := parser.ParseFile(fileSet, filename, src, parserMode)
+	if file == nil {
+		return nil, err
+	}
+
+	// Apply the fixes to the file.
+	apply(fileSet, file, fixes)
+
+	return formatFile(fileSet, file, src, nil, opt)
+}
+
+// GetAllCandidates gets all of the standard library candidate packages to import in
+// sorted order on import path.
+func GetAllCandidates(filename string, opt *Options) (pkgs []ImportFix, err error) {
+	_, opt, err = initialize(filename, nil, opt)
+	if err != nil {
+		return nil, err
+	}
+	return getAllCandidates(filename, opt.Env)
+}
+
+// GetPackageExports returns all known packages with name pkg and their exports.
+func GetPackageExports(pkg, filename string, opt *Options) (exports []PackageExport, err error) {
+	_, opt, err = initialize(filename, nil, opt)
+	if err != nil {
+		return nil, err
+	}
+	return getPackageExports(pkg, filename, opt.Env)
+}
+
+// initialize sets the values for opt and src.
+// If they are provided, they are not changed. Otherwise opt is set to the
+// default values and src is read from the file system.
+func initialize(filename string, src []byte, opt *Options) ([]byte, *Options, error) {
+	// Use defaults if opt is nil.
+	if opt == nil {
+		opt = &Options{Comments: true, TabIndent: true, TabWidth: 8}
+	}
+
+	// Set the env if the user has not provided it.
+	if opt.Env == nil {
+		opt.Env = &ProcessEnv{
+			GOPATH:      build.Default.GOPATH,
+			GOROOT:      build.Default.GOROOT,
+			GOFLAGS:     os.Getenv("GOFLAGS"),
+			GO111MODULE: os.Getenv("GO111MODULE"),
+			GOPROXY:     os.Getenv("GOPROXY"),
+			GOSUMDB:     os.Getenv("GOSUMDB"),
+		}
+	}
+
+	// Set the logger if the user has not provided it.
+	if opt.Env.Logf == nil {
+		opt.Env.Logf = log.Printf
+	}
+
+	if src == nil {
+		b, err := ioutil.ReadFile(filename)
+		if err != nil {
+			return nil, nil, err
+		}
+		src = b
+	}
+
+	return src, opt, nil
+}
+
+func formatFile(fileSet *token.FileSet, file *ast.File, src []byte, adjust func(orig []byte, src []byte) []byte, opt *Options) ([]byte, error) {
+	mergeImports(opt.Env, fileSet, file)
+	sortImports(opt.Env, fileSet, file)
 	imps := astutil.Imports(fileSet, file)
 	var spacesBefore []string // import paths we need spaces before
 	for _, impSection := range imps {
@@ -79,7 +184,7 @@ func Process(filename string, src []byte, opt *Options) ([]byte, error) {
 		lastGroup := -1
 		for _, importSpec := range impSection {
 			importPath, _ := strconv.Unquote(importSpec.Path.Value)
-			groupNum := importGroup(importPath)
+			groupNum := importGroup(opt.Env, importPath)
 			if groupNum != lastGroup && lastGroup != -1 {
 				spacesBefore = append(spacesBefore, importPath)
 			}
@@ -95,7 +200,7 @@ func Process(filename string, src []byte, opt *Options) ([]byte, error) {
 	printConfig := &printer.Config{Mode: printerMode, Tabwidth: opt.TabWidth}
 
 	var buf bytes.Buffer
-	err = printConfig.Fprint(&buf, fileSet, file)
+	err := printConfig.Fprint(&buf, fileSet, file)
 	if err != nil {
 		return nil, err
 	}

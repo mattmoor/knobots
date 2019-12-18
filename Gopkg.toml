@@ -7,7 +7,7 @@ required = [
 
 [[constraint]]
   name = "golang.org/x/tools"
-  revision = "4c874b978acba4ecd4a257d3bb8829dd5de17be8"
+  revision = "6f9e13bbec44ce9d95b8776df8ef7466fc76bcb0"
 
 [[override]]
   name = "github.com/golang/protobuf"
