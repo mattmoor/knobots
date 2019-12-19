@@ -20,4 +20,4 @@ spec:
     - name: REPOSITORY
       value: triggers
     - name: ASSIGNEE
-      value: ImJasonH
+      value: ImJasonH dibyom
