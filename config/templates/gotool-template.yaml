@@ -23,7 +23,7 @@ spec:
     image: golang
     command: ["/bin/bash", "-c"]
     workingdir: "/workspace/source"
-    args: ["gofmt -s -w $(find -path './vendor' -prune -path './third_party' -prune -o -type f -name '*.go' -print)"]
+    args: ["gofmt -s -w $(find -path './vendor' -prune -o -path './third_party' -prune -o -type f -name '*.go' -print)"]
 
   - name: goimports
     image: github.com/mattmoor/knobots/vendor/golang.org/x/tools/cmd/goimports
@@ -58,7 +58,7 @@ spec:
       mkdir -p ${PARENT_DIR}
       ln -s /workspace/source ${PARENT_DIR}/$(inputs.params.REPOSITORY)
       cd ${PARENT_DIR}/$(inputs.params.REPOSITORY)
-      /ko-app/goimports -w $(find -name '*.go' | grep -v vendor)
+      /ko-app/goimports -w $(find -name '*.go' | grep -v vendor | grep -v third_party)
     env:
     - name: GOPATH
       value: /tmp/go
@@ -75,8 +75,8 @@ spec:
     - "-body"
     - |
         Produced via:
-          `gofmt -s -w $(find -path './vendor' -prune -o -type f -name '*.go' -print))`
-          `goimports -w $(find -name '*.go' | grep -v vendor)`
+          `gofmt -s -w $(find -path './vendor' -prune -o -path './third_party' -prune -o -type f -name '*.go' -print)`
+          `goimports -w $(find -name '*.go' | grep -v vendor | grep -v third_party)`
         /assign $(inputs.params.ASSIGNEE)
         /cc $(inputs.params.ASSIGNEE)
 

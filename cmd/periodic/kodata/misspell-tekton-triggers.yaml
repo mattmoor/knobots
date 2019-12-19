@@ -1,0 +1,23 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
+metadata:
+  generateName: misspell-tekton-triggers-
+  namespace: default
+spec:
+  taskRef:
+    name: misspell
+  inputs:
+    resources:
+    - name: source
+      resourceSpec:
+        type: git
+        params:
+        - name: url
+          value: https://github.com/tektoncd/triggers.git
+    params:
+    - name: ORGANIZATION
+      value: tektoncd
+    - name: REPOSITORY
+      value: triggers
+    - name: ASSIGNEE
+      value: ImJasonH
