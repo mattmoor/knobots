@@ -36,6 +36,9 @@ spec:
       elif [ "$(inputs.params.REPOSITORY)" == "sample-controller" ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
+      elif [ "$(inputs.params.REPOSITORY)" == "net-contour" ]
+      then
+        export PARENT_DIR=${GOPATH}/src/knative.dev
       elif [ "$(inputs.params.REPOSITORY)" == "test-infra" ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
