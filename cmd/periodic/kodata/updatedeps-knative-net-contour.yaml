@@ -20,7 +20,7 @@ spec:
     - name: REPOSITORY
       value: net-contour
     - name: DEPENDENCIES
-      value: knative.dev/test-infra knative.dev/pkg knative.dev/serving knative.dev/eventing
+      value: knative.dev/test-infra knative.dev/pkg knative.dev/serving
     - name: ASSIGNEE
       value: shashwathi tanzeeb
 
