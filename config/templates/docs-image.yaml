@@ -36,8 +36,9 @@ spec:
       WORKDIR /gopath/src/github.com/knative/website
 
       ADD website-source /gopath/src/github.com/knative/website
-      ADD docs-source /gopath/src/github.com/knative/docs
       RUN git submodule update --init --recursive
+
+      ADD docs-source /gopath/src/github.com/knative/docs
       EOF
 
     env:

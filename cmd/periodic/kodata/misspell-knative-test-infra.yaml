@@ -20,4 +20,4 @@ spec:
     - name: REPOSITORY
       value: test-infra
     - name: ASSIGNEE
-      value: adrcunha
+      value: chaodaig
