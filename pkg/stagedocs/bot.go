@@ -6,6 +6,7 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/sets"
 	"knative.dev/pkg/ptr"
 	"knative.dev/serving/pkg/apis/serving/v1alpha1"
 	"knative.dev/serving/pkg/apis/serving/v1beta1"
@@ -43,7 +44,11 @@ func (gt *stagedocs) Handle(ctx context.Context, x interface{}) (handler.Respons
 		return nil, nil
 	}
 
-	if rrr.Head.GetUser().GetLogin() != "mattmoor" {
+	// Stage any approved PR.
+	// This is kind of a hack to workaround some stupid bits
+	// about how Prow applied ok-to-test labels.
+	labels := sets.NewString(rrr.Labels...)
+	if !labels.Has("approved") {
 		return nil, nil
 	}
 

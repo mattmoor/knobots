@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/google/go-github/github"
+	"k8s.io/apimachinery/pkg/util/sets"
 
 	"github.com/mattmoor/knobots/pkg/handler"
 )
@@ -41,11 +42,17 @@ func (*reviewrequest) Handle(ctx context.Context, x interface{}) (handler.Respon
 		return nil, nil
 	}
 
+	labels := sets.NewString()
+	for _, l := range pr.Labels {
+		labels.Insert(l.GetName())
+	}
+
 	return &Response{
 		Owner:       pre.Repo.Owner.GetLogin(),
 		Repository:  pre.Repo.GetName(),
 		PullRequest: pre.GetNumber(),
 		Head:        pr.GetHead(),
+		Labels:      labels.List(),
 	}, nil
 }
 
@@ -54,6 +61,7 @@ type Response struct {
 	Repository  string                    `json:"repository"`
 	PullRequest int                       `json:"pull_request"`
 	Head        *github.PullRequestBranch `json:"head,omitempty"`
+	Labels      []string                  `json:"labels,omitempty"`
 }
 
 var _ handler.Response = (*Response)(nil)
