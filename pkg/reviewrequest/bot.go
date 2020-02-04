@@ -53,7 +53,7 @@ type Response struct {
 	Owner       string                    `json:"owner"`
 	Repository  string                    `json:"repository"`
 	PullRequest int                       `json:"pull_request"`
-	Head        *github.PullRequestBranch `json:"head"`
+	Head        *github.PullRequestBranch `json:"head,omitempty"`
 }
 
 var _ handler.Response = (*Response)(nil)

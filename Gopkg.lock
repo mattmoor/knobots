@@ -285,6 +285,13 @@
   version = "v0.3.0"
 
 [[projects]]
+  digest = "1:7915c656a10819b240db94ffd6afc6a621af4687db735341d9919668750485ec"
+  name = "github.com/google/go-containerregistry"
+  packages = ["pkg/name"]
+  pruneopts = "NUT"
+  revision = "abf9ef06abd9f532944e28e8942644ea4b710a40"
+
+[[projects]]
   digest = "1:f4f203acd8b11b8747bdcd91696a01dbc95ccb9e2ca2db6abf81c3a4f5e950ce"
   name = "github.com/google/go-github"
   packages = ["github"]
@@ -636,13 +643,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:82c792687e3b34cbc9c2ccc0bc10fe29d5011e85f6482d2737043bfb4a6160c3"
+  digest = "1:1b6ea31e5066e557920f7ea11297a6cca5481a5b2da0eac266f137add865d24d"
   name = "golang.org/x/net"
   packages = [
     "context",
     "context/ctxhttp",
     "http/httpguts",
     "http2",
+    "http2/h2c",
     "http2/hpack",
     "idna",
     "internal/timeseries",
@@ -1229,14 +1237,16 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:5bdf7d3fce78121856e12d49503171f9aa9f4a136c9b8c7910140e933234b63d"
+  digest = "1:5a1415dcaef7bb1d104447020a42ac76e408547ea1f2761089d4c4312df9e7d7"
   name = "knative.dev/pkg"
   packages = [
     "apis",
     "apis/duck",
+    "apis/duck/v1alpha1",
     "apis/duck/v1beta1",
     "changeset",
     "configmap",
+    "kmeta",
     "kmp",
     "logging",
     "logging/logkey",
@@ -1248,9 +1258,28 @@
   revision = "53034608f64e82c8e892d46197f687edb6f78b93"
 
 [[projects]]
-  digest = "1:88f93c44c50763b4fdf116e58e39e43b063e7e54e0ed60e1d3bd257a709d8d2e"
+  digest = "1:65a3f8a1de7f18ee6906960228028eecc143a875b6e38dfe93f0776861da1f37"
   name = "knative.dev/serving"
-  packages = ["pkg/pool"]
+  packages = [
+    "pkg/apis/autoscaling",
+    "pkg/apis/autoscaling/v1alpha1",
+    "pkg/apis/config",
+    "pkg/apis/networking",
+    "pkg/apis/networking/v1alpha1",
+    "pkg/apis/serving",
+    "pkg/apis/serving/v1alpha1",
+    "pkg/apis/serving/v1beta1",
+    "pkg/client/clientset/versioned",
+    "pkg/client/clientset/versioned/scheme",
+    "pkg/client/clientset/versioned/typed/autoscaling/v1alpha1",
+    "pkg/client/clientset/versioned/typed/networking/v1alpha1",
+    "pkg/client/clientset/versioned/typed/serving/v1alpha1",
+    "pkg/client/clientset/versioned/typed/serving/v1beta1",
+    "pkg/gc",
+    "pkg/network",
+    "pkg/pool",
+    "pkg/reconciler/route/config",
+  ]
   pruneopts = "NUT"
   revision = "3f73b117b61ee5d8fe5dcedd6cca2c96014329a9"
   version = "v0.8.0"
@@ -1312,6 +1341,7 @@
     "gopkg.in/src-d/go-git.v4/plumbing/object",
     "gopkg.in/src-d/go-git.v4/plumbing/transport/http",
     "k8s.io/api/core/v1",
+    "k8s.io/apimachinery/pkg/api/errors",
     "k8s.io/apimachinery/pkg/apis/meta/v1",
     "k8s.io/apimachinery/pkg/watch",
     "k8s.io/client-go/kubernetes",
@@ -1319,6 +1349,8 @@
     "knative.dev/pkg/ptr",
     "knative.dev/pkg/signals",
     "knative.dev/pkg/system",
+    "knative.dev/serving/pkg/apis/serving/v1alpha1",
+    "knative.dev/serving/pkg/client/clientset/versioned",
     "knative.dev/serving/pkg/pool",
     "sourcegraph.com/sourcegraph/go-diff/diff",
   ]

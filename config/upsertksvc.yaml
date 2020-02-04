@@ -1,0 +1,53 @@
+apiVersion: eventing.knative.dev/v1alpha1
+kind: Trigger
+metadata:
+  name: upsertksvc-trigger
+  namespace: default
+spec:
+  filter:
+    sourceAndType:
+      type: dev.mattmoor.knobots.upsertksvc
+  subscriber:
+    ref:
+      apiVersion: serving.knative.dev/v1
+      kind: Service
+      name: upsertksvc-bot
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: upsertksvc
+rules:
+  - apiGroups: ["serving.knative.dev"]
+    resources: ["services"]
+    verbs: ["get", "list", "create", "update", "delete", "deletecollection", "patch", "watch"]
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: upsertksvc
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: RoleBinding
+metadata:
+  name: upsertksvc
+subjects:
+  - kind: ServiceAccount
+    name: upsertksvc
+roleRef:
+  kind: Role
+  name: upsertksvc
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: upsertksvc-bot
+  labels:
+    serving.knative.dev/visibility: cluster-local
+spec:
+  template:
+    spec:
+      serviceAccountName: upsertksvc
+      containers:
+      - image: github.com/mattmoor/knobots/cmd/upsertksvc

@@ -39,14 +39,15 @@ func (*db) GetType() interface{} {
 }
 
 type Request struct {
-	TaskRun *tektonv1alpha1.TaskRun `json:"taskRun"`
-	Count   int                     `json:"count"`
+	TaskRun      *tektonv1alpha1.TaskRun `json:"taskRun"`
+	Count        int                     `json:"count"`
+	Continuation *handler.Continuation   `json:"continuation,omitempty"`
 }
 
 var _ handler.Response = (*Request)(nil)
 
 func (*Request) GetSource() string {
-	return "https://github.com/mattmoor/knobots/cmd/periodic"
+	return "https://github.com/mattmoor/knobots/cmd/watchbuild"
 }
 
 func (*Request) GetType() string {
@@ -71,16 +72,18 @@ func (gt *db) Handle(ctx context.Context, x interface{}) (handler.Response, erro
 		select {
 		case <-timeout:
 			return &Request{
-				TaskRun: rrr.TaskRun,
-				Count:   rrr.Count + 1,
+				TaskRun:      rrr.TaskRun,
+				Count:        rrr.Count + 1,
+				Continuation: rrr.Continuation,
 			}, nil
 
 		case event, ok := <-wi.ResultChan():
 			if !ok {
 				log.Printf("Unexpected end of watch for taskrun: %s (trying again)", rrr.TaskRun.Name)
 				return &Request{
-					TaskRun: rrr.TaskRun,
-					Count:   rrr.Count + 1,
+					TaskRun:      rrr.TaskRun,
+					Count:        rrr.Count + 1,
+					Continuation: rrr.Continuation,
 				}, nil
 			}
 			if event.Type != watch.Modified {
@@ -100,10 +103,17 @@ func (gt *db) Handle(ctx context.Context, x interface{}) (handler.Response, erro
 
 			case c.Status == "True":
 				log.Printf("TaskRun %s succeeded", b.Name)
-				return nil, gt.Client.TektonV1alpha1().TaskRuns(rrr.TaskRun.Namespace).Delete(
+				err := gt.Client.TektonV1alpha1().TaskRuns(rrr.TaskRun.Namespace).Delete(
 					rrr.TaskRun.Name,
 					&metav1.DeleteOptions{},
 				)
+				if err != nil {
+					return nil, err
+				}
+				if rrr.Continuation == nil {
+					return nil, nil
+				}
+				return rrr.Continuation.AsResponse(), nil
 
 			case c.Status == "False":
 				// TaskRun failed
@@ -149,7 +159,7 @@ func (gt *db) Handle(ctx context.Context, x interface{}) (handler.Response, erro
 				}
 
 				return slack.ErrorReport(
-						"daily taskrun failed",
+						"taskrun failed",
 						attributes,
 					), gt.Client.TektonV1alpha1().TaskRuns(rrr.TaskRun.Namespace).Delete(
 						rrr.TaskRun.Name,

@@ -48,6 +48,9 @@ func (*reviewresult) Handle(ctx context.Context, x interface{}) (handler.Respons
 		pr.State = "success"
 	}
 
+	return nil, nil
+
+	// TODO(mattmoor): Don't do this for now.
 	return pr, nil
 }
 

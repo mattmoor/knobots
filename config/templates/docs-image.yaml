@@ -1,0 +1,65 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: docs-image
+
+spec:
+  inputs:
+    params:
+    - name: IMAGE
+    resources:
+    - name: docs-source
+      type: git
+    - name: website-source
+      type: git
+
+  steps:
+  - name: setup-gopath
+    image: ubuntu
+    command: ["/bin/bash", "-c"]
+    args:
+    - |
+      cat > /workspace/Dockerfile <<EOF
+      FROM ubuntu
+
+      # Install Hugo
+      RUN apt-get update -qq -y
+      RUN apt-get install -y -qq wget git
+      RUN wget https://github.com/gohugoio/hugo/releases/download/v0.63.2/hugo_extended_0.63.2_Linux-64bit.deb
+      RUN dpkg -i hugo_extended_0.63.2_Linux-64bit.deb && apt-get install -f
+
+      # This stuff is up here, even though it makes the ordering weird because
+      # they can then be cached.
+      CMD ["/bin/bash", "-c", "./scripts/localbuild.sh"]
+      RUN mkdir -p /gopath/src/github.com/knative/
+      ENV GOPATH /gopath
+      WORKDIR /gopath/src/github.com/knative/website
+
+      ADD website-source /gopath/src/github.com/knative/website
+      ADD docs-source /gopath/src/github.com/knative/docs
+      RUN git submodule update --init --recursive
+      EOF
+
+    env:
+    - name: GOPATH
+      value: /workspace/go
+
+
+  - name: build-and-push
+    workingdir: /workspace
+    image: gcr.io/kaniko-project/executor:v0.13.0
+    # specifying DOCKER_CONFIG is required to allow kaniko to detect docker credential
+    # https://github.com/tektoncd/pipeline/pull/706
+    env:
+    - name: DOCKER_CONFIG
+      value: /tekton/home/.docker
+    command:
+    - /kaniko/executor
+    - --dockerfile=Dockerfile
+    - --cache=true
+    - --cache-ttl=12h
+    - --context=/workspace
+    - --destination=$(inputs.params.IMAGE)
+
+    securityContext:
+      runAsUser: 0

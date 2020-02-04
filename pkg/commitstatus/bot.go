@@ -24,16 +24,16 @@ func (*commitstatus) GetType() interface{} {
 func (*commitstatus) Handle(ctx context.Context, x interface{}) (handler.Response, error) {
 	p := x.(*Payload)
 
-	return nil, nil
-
 	ghc, err := githubbinding.New(ctx)
 	if err != nil {
 		return nil, err
 	}
+
 	_, _, err = ghc.Repositories.CreateStatus(ctx, p.Owner, p.Repository, p.SHA, &github.RepoStatus{
 		Context:     &p.Name,
 		State:       &p.State,
 		Description: &p.Description,
+		TargetURL:   p.URL,
 	})
 
 	return nil, err
@@ -44,9 +44,10 @@ type Payload struct {
 	Repository string `json:"repository"`
 	SHA        string `json:"sha"`
 
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	State       string `json:"state"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	State       string  `json:"state"`
+	URL         *string `json:"url"`
 }
 
 var _ handler.Response = (*Payload)(nil)

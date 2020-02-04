@@ -1,0 +1,58 @@
+apiVersion: eventing.knative.dev/v1alpha1
+kind: Trigger
+metadata:
+  name: stagedocs-trigger
+  namespace: default
+spec:
+  filter:
+    sourceAndType:
+      type: dev.mattmoor.knobots.reviewrequest
+  subscriber:
+    ref:
+      apiVersion: serving.knative.dev/v1
+      kind: Service
+      name: stagedocs-bot
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: stagedocs
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/log"]
+    verbs: ["get"]
+  - apiGroups: ["tekton.dev"]
+    resources: ["taskruns"]
+    verbs: ["get", "list", "create", "update", "delete", "deletecollection", "patch", "watch"]
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: stagedocs
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: RoleBinding
+metadata:
+  name: stagedocs
+subjects:
+  - kind: ServiceAccount
+    name: stagedocs
+roleRef:
+  kind: Role
+  name: stagedocs
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: stagedocs-bot
+  labels:
+    serving.knative.dev/visibility: cluster-local
+spec:
+  template:
+    spec:
+      serviceAccountName: stagedocs
+      containers:
+      - image: github.com/mattmoor/knobots/cmd/stagedocs
+      # Give it ten minutes to run the build.
+      timeoutSeconds: 600
