@@ -40,7 +40,7 @@ func (gt *stagedocs) Handle(ctx context.Context, x interface{}) (handler.Respons
 	rrr := x.(*reviewrequest.Response)
 
 	// Only run this on knative/docs
-	if rrr.Owner != "knative" && rrr.Repository != "docs" {
+	if rrr.Owner != "knative" || rrr.Repository != "docs" {
 		return nil, nil
 	}
 
