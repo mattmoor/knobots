@@ -19,7 +19,7 @@ type donotsubmit struct{}
 
 var _ handler.Interface = (*donotsubmit)(nil)
 
-func New() handler.Interface {
+func New(context.Context) handler.Interface {
 	return &donotsubmit{}
 }
 

@@ -14,7 +14,7 @@ type dm struct{}
 
 var _ handler.Interface = (*dm)(nil)
 
-func New() handler.Interface {
+func New(context.Context) handler.Interface {
 	return &dm{}
 }
 

@@ -6,5 +6,5 @@ import (
 )
 
 func main() {
-	handler.Main(reviewresult.New())
+	handler.Main(reviewresult.New)
 }

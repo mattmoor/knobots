@@ -14,7 +14,7 @@ type reviewresult struct{}
 
 var _ handler.Interface = (*reviewresult)(nil)
 
-func New() handler.Interface {
+func New(context.Context) handler.Interface {
 	return &reviewresult{}
 }
 

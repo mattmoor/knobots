@@ -16,15 +16,23 @@
   version = "v0.44.3"
 
 [[projects]]
-  digest = "1:c1e8c027918e8a7cf79327f35ca2919cb997ecaa928116e3c2b470d06d0e9c12"
+  digest = "1:642cf8e80572f9dc0677b0f241c8ab2e715c9dccc215270ea873c86ddca0062c"
+  name = "contrib.go.opencensus.io/exporter/prometheus"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "f4a2c1e53ec45636355d35fb9022b64e4bdd4a91"
+  version = "v0.1.0"
+
+[[projects]]
+  digest = "1:f091d5e3183a972fc45c4279cec2d97e13262bfda5b85cda3280cb41475e1415"
   name = "contrib.go.opencensus.io/exporter/stackdriver"
   packages = [
     ".",
     "monitoredresource",
   ]
   pruneopts = "NUT"
-  revision = "bf39ce456bd8c6e2e3e37ef9775ed8b10628feca"
-  version = "v0.12.5"
+  revision = "6850d2e00d7dfe4886f7e4773bf9f05e39296d92"
+  version = "v0.12.4"
 
 [[projects]]
   branch = "2.x"
@@ -89,6 +97,14 @@
   pruneopts = "NUT"
   revision = "fe1a8f58dd8410b629e504f0cf0315ca74a1e20a"
   version = "v1.23.2"
+
+[[projects]]
+  digest = "1:707ebe952a8b3d00b343c01536c79c73771d100f63ec6babeaed5c79e2b8a8dd"
+  name = "github.com/beorn7/perks"
+  packages = ["quantile"]
+  pruneopts = "NUT"
+  revision = "37c8de3658fcb183f997c4e13e8337516ab753e6"
+  version = "v1.0.1"
 
 [[projects]]
   digest = "1:a12d94258c5298ead75e142e8001224bf029f302fed9e96cd39c0eaf90f3954d"
@@ -252,6 +268,14 @@
   version = "v0.5.4"
 
 [[projects]]
+  branch = "master"
+  digest = "1:b7cb6054d3dff43b38ad2e92492f220f57ae6087ee797dca298139776749ace8"
+  name = "github.com/golang/groupcache"
+  packages = ["lru"]
+  pruneopts = "NUT"
+  revision = "8c9f03a8e57eb486e42badaed3fb287da51807ba"
+
+[[projects]]
   digest = "1:f5a98770ab68c1146ee5cc14ed24aafa2bb1a2b3c89cbeadc9eb913b1f9d930a"
   name = "github.com/golang/protobuf"
   packages = [
@@ -285,11 +309,11 @@
   version = "v0.3.0"
 
 [[projects]]
-  digest = "1:7915c656a10819b240db94ffd6afc6a621af4687db735341d9919668750485ec"
+  digest = "1:10aa62acd56f635de190110a836aa261b3774e697b2b6a7af27d8263cf856d47"
   name = "github.com/google/go-containerregistry"
   packages = ["pkg/name"]
   pruneopts = "NUT"
-  revision = "abf9ef06abd9f532944e28e8942644ea4b710a40"
+  revision = "b02d448a3705facf11018efff34f1d2830be5724"
 
 [[projects]]
   digest = "1:f4f203acd8b11b8747bdcd91696a01dbc95ccb9e2ca2db6abf81c3a4f5e950ce"
@@ -431,6 +455,14 @@
   revision = "50f24a3bc72143f6ea2f6ea59ba5b1260f8abd8d"
 
 [[projects]]
+  digest = "1:5985ef4caf91ece5d54817c11ea25f182697534f8ae6521eadcd628c142ac4b6"
+  name = "github.com/matttproud/golang_protobuf_extensions"
+  packages = ["pbutil"]
+  pruneopts = "NUT"
+  revision = "c12348ce28de40eed0136aa2b644d0ee0650e56c"
+  version = "v1.0.1"
+
+[[projects]]
   digest = "1:a4df73029d2c42fabcb6b41e327d2f87e685284ec03edf76921c267d9cfc9c23"
   name = "github.com/mitchellh/go-homedir"
   packages = ["."]
@@ -498,6 +530,50 @@
   version = "v0.8.1"
 
 [[projects]]
+  digest = "1:097cc61836050f45cbb712ae3bb45d66fba464c16b8fac09907fa3c1f753eff6"
+  name = "github.com/prometheus/client_golang"
+  packages = [
+    "prometheus",
+    "prometheus/internal",
+    "prometheus/promhttp",
+  ]
+  pruneopts = "NUT"
+  revision = "170205fb58decfd011f1550d4cfb737230d7ae4f"
+  version = "v1.1.0"
+
+[[projects]]
+  digest = "1:0db23933b8052702d980a3f029149b3f175f7c0eea0cff85b175017d0f2722c0"
+  name = "github.com/prometheus/client_model"
+  packages = ["go"]
+  pruneopts = "NUT"
+  revision = "7bc5445566f0fe75b15de23e6b93886e982d7bf9"
+  version = "v0.2.0"
+
+[[projects]]
+  digest = "1:0c9d56afe4f5b3ab5658a3270a680db8f6936d7794377fa0b9880663958b18b0"
+  name = "github.com/prometheus/common"
+  packages = [
+    "expfmt",
+    "internal/bitbucket.org/ww/goautoneg",
+    "model",
+  ]
+  pruneopts = "NUT"
+  revision = "d978bcb1309602d68bb4ba69cf3f8ed900e07308"
+  version = "v0.9.1"
+
+[[projects]]
+  digest = "1:a4b063a766f50cdadc1fce12053e3bde8599f1f8b7621d7e293cd2fc86543a44"
+  name = "github.com/prometheus/procfs"
+  packages = [
+    ".",
+    "internal/fs",
+    "internal/util",
+  ]
+  pruneopts = "NUT"
+  revision = "6d489fc7f1d9cd890a250f3ea3431b1744b9623f"
+  version = "v0.0.8"
+
+[[projects]]
   branch = "master"
   digest = "1:abb4b60c28323cde32c193ce6083bb600fac462d1780cf83461b4c23ed5ce904"
   name = "github.com/sdboyer/constext"
@@ -527,26 +603,30 @@
   version = "v1.4.0"
 
 [[projects]]
-  digest = "1:1d1f2a7e85c92715cc33ae282bbe8fb3afa0a19d32a9bb2d6182788894ad0aa0"
+  digest = "1:0bf60fbc826110ac724da9e730e4db134d3b30ede4c07b2253fa985d81ad7f74"
   name = "github.com/tektoncd/pipeline"
   packages = [
     "pkg/apis/config",
     "pkg/apis/pipeline",
+    "pkg/apis/pipeline/pod",
     "pkg/apis/pipeline/v1alpha1",
     "pkg/apis/pipeline/v1alpha2",
+    "pkg/apis/resource/v1alpha1",
     "pkg/apis/validate",
     "pkg/client/clientset/versioned",
     "pkg/client/clientset/versioned/scheme",
     "pkg/client/clientset/versioned/typed/pipeline/v1alpha1",
     "pkg/client/clientset/versioned/typed/pipeline/v1alpha2",
+    "pkg/client/injection/client",
+    "pkg/contexts",
     "pkg/list",
     "pkg/names",
     "pkg/reconciler/pipeline/dag",
     "pkg/substitution",
   ]
   pruneopts = "NUT"
-  revision = "5e59ba4e4e40b7c2ac0191d407d2bab36e08afaa"
-  version = "v0.9.0"
+  revision = "9d40d325b27a98ec496e9d0bc4d6f28ed078d0fc"
+  version = "v0.10.1"
 
 [[projects]]
   digest = "1:3148cb3478c26a92b4c1a18abb9428234b281e278af6267840721a24b6cbc6a3"
@@ -643,14 +723,13 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:1b6ea31e5066e557920f7ea11297a6cca5481a5b2da0eac266f137add865d24d"
+  digest = "1:82c792687e3b34cbc9c2ccc0bc10fe29d5011e85f6482d2737043bfb4a6160c3"
   name = "golang.org/x/net"
   packages = [
     "context",
     "context/ctxhttp",
     "http/httpguts",
     "http2",
-    "http2/h2c",
     "http2/hpack",
     "idna",
     "internal/timeseries",
@@ -746,17 +825,6 @@
   ]
   pruneopts = "NUT"
   revision = "6f9e13bbec44ce9d95b8776df8ef7466fc76bcb0"
-
-[[projects]]
-  branch = "master"
-  digest = "1:c0619d0c0c2f585812ce9f844eafb9c5660f5bd723c9ac0cd60b7fac665d2ac6"
-  name = "golang.org/x/xerrors"
-  packages = [
-    ".",
-    "internal",
-  ]
-  pruneopts = "NUT"
-  revision = "1b5146add8981d58be77b16229c0ff0f8bebd8c1"
 
 [[projects]]
   branch = "master"
@@ -1058,7 +1126,7 @@
   version = "kubernetes-1.15.3"
 
 [[projects]]
-  digest = "1:c36eb2bb25e71e94e91760a001a7aaa2d5aaa9b5a70796fedc8b460e6201e878"
+  digest = "1:5512c28827fd9f6cbcfabb4b7f67596f23601fab8306e3a6575650027f6a07cb"
   name = "k8s.io/client-go"
   packages = [
     "discovery",
@@ -1195,6 +1263,8 @@
     "tools/clientcmd/api",
     "tools/metrics",
     "tools/pager",
+    "tools/record",
+    "tools/record/util",
     "tools/reference",
     "transport",
     "util/cert",
@@ -1202,6 +1272,7 @@
     "util/flowcontrol",
     "util/keyutil",
     "util/retry",
+    "util/workqueue",
   ]
   pruneopts = "NUT"
   revision = "e14f31a72a77f7aa82a95eaf542d1194fb027d04"
@@ -1236,29 +1307,38 @@
   revision = "6ca3b61696b65b0e81f1a39b4937fc2d2994ed6a"
 
 [[projects]]
-  branch = "master"
-  digest = "1:5a1415dcaef7bb1d104447020a42ac76e408547ea1f2761089d4c4312df9e7d7"
+  branch = "release-0.10"
+  digest = "1:2062dd375f8de024c55cfeeb4d7d91b42ce914a50a76a1d0d3a32fca6132b7e1"
   name = "knative.dev/pkg"
   packages = [
     "apis",
     "apis/duck",
+    "apis/duck/v1",
     "apis/duck/v1alpha1",
     "apis/duck/v1beta1",
+    "apis/v1alpha1",
     "changeset",
+    "client/injection/kube/client",
     "configmap",
+    "controller",
+    "injection",
     "kmeta",
     "kmp",
     "logging",
     "logging/logkey",
+    "metrics",
+    "metrics/metricskey",
+    "network",
+    "profiling",
     "ptr",
     "signals",
     "system",
   ]
   pruneopts = "NUT"
-  revision = "53034608f64e82c8e892d46197f687edb6f78b93"
+  revision = "884d50f09454909de6f343c165fdba5f59c5c19a"
 
 [[projects]]
-  digest = "1:65a3f8a1de7f18ee6906960228028eecc143a875b6e38dfe93f0776861da1f37"
+  digest = "1:2e61ba34794af16f029381fd1a315a0995e09cfc72e1309334730ece17ee071e"
   name = "knative.dev/serving"
   packages = [
     "pkg/apis/autoscaling",
@@ -1267,22 +1347,25 @@
     "pkg/apis/networking",
     "pkg/apis/networking/v1alpha1",
     "pkg/apis/serving",
+    "pkg/apis/serving/v1",
     "pkg/apis/serving/v1alpha1",
     "pkg/apis/serving/v1beta1",
     "pkg/client/clientset/versioned",
     "pkg/client/clientset/versioned/scheme",
     "pkg/client/clientset/versioned/typed/autoscaling/v1alpha1",
     "pkg/client/clientset/versioned/typed/networking/v1alpha1",
+    "pkg/client/clientset/versioned/typed/serving/v1",
     "pkg/client/clientset/versioned/typed/serving/v1alpha1",
     "pkg/client/clientset/versioned/typed/serving/v1beta1",
+    "pkg/client/injection/client",
     "pkg/gc",
     "pkg/network",
     "pkg/pool",
     "pkg/reconciler/route/config",
   ]
   pruneopts = "NUT"
-  revision = "3f73b117b61ee5d8fe5dcedd6cca2c96014329a9"
-  version = "v0.8.0"
+  revision = "e4922e8a9ec460e78ab02ef598e042650131d6fe"
+  version = "v0.12.1"
 
 [[projects]]
   digest = "1:8730e0150dfb2b7e173890c8b9868e7a273082ef8e39f4940e3506a481cf895c"
@@ -1329,6 +1412,7 @@
     "github.com/nlopes/slack",
     "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1alpha1",
     "github.com/tektoncd/pipeline/pkg/client/clientset/versioned",
+    "github.com/tektoncd/pipeline/pkg/client/injection/client",
     "go.opencensus.io/plugin/ochttp",
     "go.opencensus.io/plugin/ochttp/propagation/b3",
     "go.opencensus.io/stats/view",
@@ -1341,16 +1425,23 @@
     "gopkg.in/src-d/go-git.v4/plumbing/object",
     "gopkg.in/src-d/go-git.v4/plumbing/transport/http",
     "k8s.io/api/core/v1",
+    "k8s.io/apimachinery/pkg/api/equality",
     "k8s.io/apimachinery/pkg/api/errors",
     "k8s.io/apimachinery/pkg/apis/meta/v1",
+    "k8s.io/apimachinery/pkg/util/sets",
     "k8s.io/apimachinery/pkg/watch",
     "k8s.io/client-go/kubernetes",
     "k8s.io/client-go/rest",
+    "knative.dev/pkg/client/injection/kube/client",
+    "knative.dev/pkg/controller",
+    "knative.dev/pkg/injection",
     "knative.dev/pkg/ptr",
     "knative.dev/pkg/signals",
     "knative.dev/pkg/system",
+    "knative.dev/serving/pkg/apis/serving/v1",
     "knative.dev/serving/pkg/apis/serving/v1alpha1",
     "knative.dev/serving/pkg/client/clientset/versioned",
+    "knative.dev/serving/pkg/client/injection/client",
     "knative.dev/serving/pkg/pool",
     "sourcegraph.com/sourcegraph/go-diff/diff",
   ]

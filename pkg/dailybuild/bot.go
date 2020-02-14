@@ -5,7 +5,9 @@ import (
 
 	tektonv1alpha1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1alpha1"
 	tektonclientset "github.com/tektoncd/pipeline/pkg/client/clientset/versioned"
+	tektonclient "github.com/tektoncd/pipeline/pkg/client/injection/client"
 	"k8s.io/client-go/kubernetes"
+	kubeclient "knative.dev/pkg/client/injection/kube/client"
 
 	"github.com/mattmoor/knobots/pkg/handler"
 	"github.com/mattmoor/knobots/pkg/watchbuild"
@@ -18,10 +20,10 @@ type db struct {
 
 var _ handler.Interface = (*db)(nil)
 
-func New(ks kubernetes.Interface, bc tektonclientset.Interface) handler.Interface {
+func New(ctx context.Context) handler.Interface {
 	return &db{
-		KubeClient: ks,
-		Client:     bc,
+		KubeClient: kubeclient.Get(ctx),
+		Client:     tektonclient.Get(ctx),
 	}
 }
 

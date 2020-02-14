@@ -6,5 +6,5 @@ import (
 )
 
 func main() {
-	handler.Main(foo.New())
+	handler.Main(foo.New)
 }

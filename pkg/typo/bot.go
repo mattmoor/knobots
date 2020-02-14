@@ -21,7 +21,7 @@ type typo struct{}
 
 var _ handler.Interface = (*typo)(nil)
 
-func New() handler.Interface {
+func New(context.Context) handler.Interface {
 	return &typo{}
 }
 

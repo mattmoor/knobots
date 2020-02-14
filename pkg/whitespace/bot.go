@@ -20,7 +20,7 @@ type whitespace struct{}
 
 var _ handler.Interface = (*whitespace)(nil)
 
-func New() handler.Interface {
+func New(context.Context) handler.Interface {
 	return &whitespace{}
 }
 

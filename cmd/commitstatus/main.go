@@ -6,5 +6,5 @@ import (
 )
 
 func main() {
-	handler.Main(commitstatus.New())
+	handler.Main(commitstatus.New)
 }

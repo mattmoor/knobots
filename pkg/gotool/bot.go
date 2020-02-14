@@ -13,6 +13,7 @@ import (
 
 	tektonv1alpha1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1alpha1"
 	tektonclientset "github.com/tektoncd/pipeline/pkg/client/clientset/versioned"
+	tektonclient "github.com/tektoncd/pipeline/pkg/client/injection/client"
 
 	client "github.com/mattmoor/bindings/pkg/github"
 	"github.com/mattmoor/knobots/pkg/botinfo"
@@ -30,8 +31,8 @@ type gotool struct {
 
 var _ handler.Interface = (*gotool)(nil)
 
-func New(bc tektonclientset.Interface) handler.Interface {
-	return &gotool{Client: bc}
+func New(ctx context.Context) handler.Interface {
+	return &gotool{Client: tektonclient.Get(ctx)}
 }
 
 func (*gotool) GetType() interface{} {

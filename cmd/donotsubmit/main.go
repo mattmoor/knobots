@@ -6,5 +6,5 @@ import (
 )
 
 func main() {
-	handler.Main(donotsubmit.New())
+	handler.Main(donotsubmit.New)
 }

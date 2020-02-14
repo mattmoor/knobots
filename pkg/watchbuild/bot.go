@@ -10,10 +10,12 @@ import (
 	"github.com/ghodss/yaml"
 	tektonv1alpha1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1alpha1"
 	tektonclientset "github.com/tektoncd/pipeline/pkg/client/clientset/versioned"
+	tektonclient "github.com/tektoncd/pipeline/pkg/client/injection/client"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/kubernetes"
+	kubeclient "knative.dev/pkg/client/injection/kube/client"
 	"knative.dev/pkg/ptr"
 
 	"github.com/mattmoor/knobots/pkg/handler"
@@ -27,10 +29,10 @@ type db struct {
 
 var _ handler.Interface = (*db)(nil)
 
-func New(ks kubernetes.Interface, bc tektonclientset.Interface) handler.Interface {
+func New(ctx context.Context) handler.Interface {
 	return &db{
-		KubeClient: ks,
-		Client:     bc,
+		KubeClient: kubeclient.Get(ctx),
+		Client:     tektonclient.Get(ctx),
 	}
 }
 

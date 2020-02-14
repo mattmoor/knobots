@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"flag"
 	"log"
 	"net/http"
 	"os"
@@ -16,6 +17,9 @@ import (
 	"go.opencensus.io/stats/view"
 	"go.opencensus.io/trace"
 	"go.opencensus.io/trace/propagation"
+	"k8s.io/client-go/rest"
+	"knative.dev/pkg/controller"
+	"knative.dev/pkg/injection"
 	"knative.dev/pkg/signals"
 )
 
@@ -103,8 +107,22 @@ func Send(resp Response) error {
 	return err
 }
 
-func Main(h Interface) {
+func Main(h func(context.Context) Interface) {
 	ctx := signals.NewContext()
+
+	flag.Parse()
+
+	cfg, err := rest.InClusterConfig()
+	if err != nil {
+		log.Fatalf("Error building kubeconfig: %v", err)
+	}
+
+	ctx, informers := injection.Default.SetupInformers(ctx, cfg)
+
+	// Start all of the informers and wait for them to sync.
+	if err := controller.StartInformers(ctx.Done(), informers...); err != nil {
+		log.Fatalf("Failed to start informers %v", err)
+	}
 
 	projectID, err := metadata.ProjectID()
 	if err != nil {
@@ -147,7 +165,7 @@ func Main(h Interface) {
 		log.Fatalf("failed to create client: %s", err.Error())
 	}
 
-	if err := c.StartReceiver(ctx, gotEvent(h)); err != nil {
+	if err := c.StartReceiver(ctx, gotEvent(h(ctx))); err != nil {
 		log.Fatalf("failed to start receiver: %s", err.Error())
 	}
 }

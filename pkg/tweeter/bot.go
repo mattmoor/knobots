@@ -13,7 +13,7 @@ type tweeter struct {
 
 var _ handler.Interface = (*tweeter)(nil)
 
-func New() handler.Interface {
+func New(context.Context) handler.Interface {
 	return &tweeter{}
 }
 

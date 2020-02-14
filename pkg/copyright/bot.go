@@ -31,7 +31,7 @@ type copyright struct{}
 
 var _ handler.Interface = (*copyright)(nil)
 
-func New() handler.Interface {
+func New(context.Context) handler.Interface {
 	return &copyright{}
 }
 

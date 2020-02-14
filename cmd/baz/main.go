@@ -6,5 +6,5 @@ import (
 )
 
 func main() {
-	handler.Main(baz.New())
+	handler.Main(baz.New)
 }

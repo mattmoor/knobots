@@ -3,9 +3,10 @@ package bar
 import (
 	"context"
 
-	"github.com/cloudevents/sdk-go"
-	"github.com/mattmoor/knobots/pkg/botinfo"
 	"log"
+
+	cloudevents "github.com/cloudevents/sdk-go"
+	"github.com/mattmoor/knobots/pkg/botinfo"
 
 	"github.com/mattmoor/knobots/pkg/baz"
 	"github.com/mattmoor/knobots/pkg/handler"
@@ -15,7 +16,7 @@ type bar struct{}
 
 var _ handler.Interface = (*bar)(nil)
 
-func New() handler.Interface {
+func New(context.Context) handler.Interface {
 	return &bar{}
 }
 

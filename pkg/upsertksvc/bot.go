@@ -9,6 +9,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"knative.dev/serving/pkg/apis/serving/v1alpha1"
 	clientset "knative.dev/serving/pkg/client/clientset/versioned"
+	servingclient "knative.dev/serving/pkg/client/injection/client"
 
 	"github.com/mattmoor/knobots/pkg/commitstatus"
 	"github.com/mattmoor/knobots/pkg/handler"
@@ -20,9 +21,9 @@ type upsertksvc struct {
 
 var _ handler.Interface = (*upsertksvc)(nil)
 
-func New(client clientset.Interface) handler.Interface {
+func New(ctx context.Context) handler.Interface {
 	return &upsertksvc{
-		Client: client,
+		Client: servingclient.Get(ctx),
 	}
 }
 

@@ -8,11 +8,12 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"knative.dev/pkg/ptr"
+	v1 "knative.dev/serving/pkg/apis/serving/v1"
 	"knative.dev/serving/pkg/apis/serving/v1alpha1"
-	"knative.dev/serving/pkg/apis/serving/v1beta1"
 
 	tektonv1alpha1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1alpha1"
 	tektonclientset "github.com/tektoncd/pipeline/pkg/client/clientset/versioned"
+	tektonclient "github.com/tektoncd/pipeline/pkg/client/injection/client"
 
 	"github.com/mattmoor/knobots/pkg/botinfo"
 	"github.com/mattmoor/knobots/pkg/commitstatus"
@@ -28,8 +29,8 @@ type stagedocs struct {
 
 var _ handler.Interface = (*stagedocs)(nil)
 
-func New(bc tektonclientset.Interface) handler.Interface {
-	return &stagedocs{Client: bc}
+func New(ctx context.Context) handler.Interface {
+	return &stagedocs{Client: tektonclient.Get(ctx)}
 }
 
 func (*stagedocs) GetType() interface{} {
@@ -120,7 +121,7 @@ func (gt *stagedocs) Handle(ctx context.Context, x interface{}) (handler.Respons
 				ConfigurationSpec: v1alpha1.ConfigurationSpec{
 					Template: &v1alpha1.RevisionTemplateSpec{
 						Spec: v1alpha1.RevisionSpec{
-							RevisionSpec: v1beta1.RevisionSpec{
+							RevisionSpec: v1.RevisionSpec{
 								PodSpec: corev1.PodSpec{
 									Containers: []corev1.Container{{
 										Image: image,

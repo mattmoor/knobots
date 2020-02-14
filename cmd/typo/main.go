@@ -6,5 +6,5 @@ import (
 )
 
 func main() {
-	handler.Main(typo.New())
+	handler.Main(typo.New)
 }

@@ -13,7 +13,7 @@ type commitstatus struct{}
 
 var _ handler.Interface = (*commitstatus)(nil)
 
-func New() handler.Interface {
+func New(context.Context) handler.Interface {
 	return &commitstatus{}
 }
 

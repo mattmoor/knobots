@@ -6,5 +6,5 @@ import (
 )
 
 func main() {
-	handler.Main(copyright.New())
+	handler.Main(copyright.New)
 }

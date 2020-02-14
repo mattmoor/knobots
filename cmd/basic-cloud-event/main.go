@@ -42,5 +42,5 @@ func (tr *ThingResponse) GetType() string {
 }
 
 func main() {
-	handler.Main(&Thing{})
+	handler.Main(func(context.Context) handler.Interface { return &Thing{} })
 }
