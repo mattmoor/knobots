@@ -20,9 +20,9 @@ import (
 	"github.com/mattmoor/knobots/pkg/builds"
 	"github.com/mattmoor/knobots/pkg/comment"
 	"github.com/mattmoor/knobots/pkg/handler"
-	"github.com/mattmoor/knobots/pkg/reviewrequest"
-	"github.com/mattmoor/knobots/pkg/reviewresult"
-	"github.com/mattmoor/knobots/pkg/slack"
+	"github.com/mattmoor/knobots/pkg/handler/reviewrequest"
+	"github.com/mattmoor/knobots/pkg/handler/reviewresult"
+	"github.com/mattmoor/knobots/pkg/handler/slack"
 )
 
 type gotool struct {

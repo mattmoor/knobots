@@ -10,7 +10,7 @@ import (
 	kubeclient "knative.dev/pkg/client/injection/kube/client"
 
 	"github.com/mattmoor/knobots/pkg/handler"
-	"github.com/mattmoor/knobots/pkg/watchbuild"
+	"github.com/mattmoor/knobots/pkg/handler/watchbuild"
 )
 
 type db struct {

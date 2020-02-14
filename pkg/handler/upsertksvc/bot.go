@@ -11,8 +11,8 @@ import (
 	clientset "knative.dev/serving/pkg/client/clientset/versioned"
 	servingclient "knative.dev/serving/pkg/client/injection/client"
 
-	"github.com/mattmoor/knobots/pkg/commitstatus"
 	"github.com/mattmoor/knobots/pkg/handler"
+	"github.com/mattmoor/knobots/pkg/handler/commitstatus"
 )
 
 type upsertksvc struct {

@@ -17,8 +17,8 @@ import (
 	"github.com/mattmoor/knobots/pkg/botinfo"
 	"github.com/mattmoor/knobots/pkg/comment"
 	"github.com/mattmoor/knobots/pkg/handler"
-	"github.com/mattmoor/knobots/pkg/reviewrequest"
-	"github.com/mattmoor/knobots/pkg/reviewresult"
+	"github.com/mattmoor/knobots/pkg/handler/reviewrequest"
+	"github.com/mattmoor/knobots/pkg/handler/reviewresult"
 	"github.com/mattmoor/knobots/pkg/visitor"
 )
 

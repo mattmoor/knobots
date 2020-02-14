@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/mattmoor/knobots/pkg/handler"
-	"github.com/mattmoor/knobots/pkg/reviewrequest"
+	"github.com/mattmoor/knobots/pkg/handler/reviewrequest"
 )
 
 func main() {

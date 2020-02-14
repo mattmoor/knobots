@@ -5,8 +5,8 @@ import (
 
 	"github.com/google/go-github/github"
 
-	"github.com/mattmoor/knobots/pkg/commitstatus"
 	"github.com/mattmoor/knobots/pkg/handler"
+	"github.com/mattmoor/knobots/pkg/handler/commitstatus"
 	"github.com/mattmoor/knobots/pkg/review"
 )
 

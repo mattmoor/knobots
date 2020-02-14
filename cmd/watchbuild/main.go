@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/mattmoor/knobots/pkg/handler"
-	"github.com/mattmoor/knobots/pkg/watchbuild"
+	"github.com/mattmoor/knobots/pkg/handler/watchbuild"
 )
 
 func main() {

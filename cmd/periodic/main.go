@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 
 	"github.com/ghodss/yaml"
-	"github.com/mattmoor/knobots/pkg/dailybuild"
 	"github.com/mattmoor/knobots/pkg/handler"
+	"github.com/mattmoor/knobots/pkg/handler/dailybuild"
 	tektonv1alpha1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1alpha1"
 	"knative.dev/pkg/system"
 	"knative.dev/serving/pkg/pool"

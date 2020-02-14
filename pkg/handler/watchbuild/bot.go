@@ -19,7 +19,7 @@ import (
 	"knative.dev/pkg/ptr"
 
 	"github.com/mattmoor/knobots/pkg/handler"
-	"github.com/mattmoor/knobots/pkg/slack"
+	"github.com/mattmoor/knobots/pkg/handler/slack"
 )
 
 type db struct {

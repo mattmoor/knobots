@@ -16,11 +16,11 @@ import (
 	tektonclient "github.com/tektoncd/pipeline/pkg/client/injection/client"
 
 	"github.com/mattmoor/knobots/pkg/botinfo"
-	"github.com/mattmoor/knobots/pkg/commitstatus"
 	"github.com/mattmoor/knobots/pkg/handler"
-	"github.com/mattmoor/knobots/pkg/reviewrequest"
-	"github.com/mattmoor/knobots/pkg/upsertksvc"
-	"github.com/mattmoor/knobots/pkg/watchbuild"
+	"github.com/mattmoor/knobots/pkg/handler/commitstatus"
+	"github.com/mattmoor/knobots/pkg/handler/reviewrequest"
+	"github.com/mattmoor/knobots/pkg/handler/upsertksvc"
+	"github.com/mattmoor/knobots/pkg/handler/watchbuild"
 )
 
 type stagedocs struct {

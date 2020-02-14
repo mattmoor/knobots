@@ -1,42 +1,34 @@
-package typo
+package donotsubmit
 
 import (
 	"context"
-	"path/filepath"
 	"strings"
 
-	"github.com/client9/misspell"
 	"github.com/google/go-github/github"
 	"sourcegraph.com/sourcegraph/go-diff/diff"
 
 	"github.com/mattmoor/knobots/pkg/botinfo"
 	"github.com/mattmoor/knobots/pkg/comment"
 	"github.com/mattmoor/knobots/pkg/handler"
-	"github.com/mattmoor/knobots/pkg/reviewrequest"
-	"github.com/mattmoor/knobots/pkg/reviewresult"
+	"github.com/mattmoor/knobots/pkg/handler/reviewrequest"
+	"github.com/mattmoor/knobots/pkg/handler/reviewresult"
 	"github.com/mattmoor/knobots/pkg/visitor"
 )
 
-type typo struct{}
+type donotsubmit struct{}
 
-var _ handler.Interface = (*typo)(nil)
+var _ handler.Interface = (*donotsubmit)(nil)
 
 func New(context.Context) handler.Interface {
-	return &typo{}
+	return &donotsubmit{}
 }
 
-func (*typo) GetType() interface{} {
+func (*donotsubmit) GetType() interface{} {
 	return &reviewrequest.Response{}
 }
 
-func (*typo) Handle(ctx context.Context, x interface{}) (handler.Response, error) {
+func (*donotsubmit) Handle(ctx context.Context, x interface{}) (handler.Response, error) {
 	rrr := x.(*reviewrequest.Response)
-
-	r := misspell.Replacer{
-		Replacements: misspell.DictMain,
-		Debug:        false,
-	}
-	r.Compile()
 
 	var comments []*github.DraftReviewComment
 	err := visitor.Hunks(ctx, rrr.Owner, rrr.Repository, rrr.PullRequest,
@@ -52,27 +44,15 @@ func (*typo) Handle(ctx context.Context, x interface{}) (handler.Response, error
 			for _, hunk := range hs {
 				lines := strings.Split(string(hunk.Body), "\n")
 				for _, line := range lines {
-					// Increase our offset for each line we see.
 					if strings.HasPrefix(line, "+") {
-						orig := line[1:]
-						updated := orig // Default to skip comment when to files match.
-						if filepath.Ext(path) == ".go" {
-							updated, _ = r.ReplaceGo(orig)
-						} else if filepath.Ext(path) == ".md" {
-							updated, _ = r.Replace(orig)
-						}
-						if updated != orig {
-							position := offset // Copy it because of &.
+						if strings.Contains(line, "DO NOT SUBMIT") {
+							position := offset // Copy it.
 							comments = append(comments, &github.DraftReviewComment{
 								Path:     &path,
 								Position: &position,
-								Body: comment.WithCaptionedSuggestion(
-									"Found potential misspelling(s):",
-									updated,
-								),
+								Body:     comment.WithSignature(botinfo.GetName(), `Found "DO NOT SUBMIT".`),
 							})
 						}
-
 					}
 					// Increase our offset for each line we see.
 					offset++
@@ -86,7 +66,7 @@ func (*typo) Handle(ctx context.Context, x interface{}) (handler.Response, error
 
 	return &reviewresult.Payload{
 		Name:        botinfo.GetName(),
-		Description: `Check for typos in added lines.`,
+		Description: `Check for "DO NOT SUBMIT" in added lines.`,
 		Owner:       rrr.Owner,
 		Repository:  rrr.Repository,
 		PullRequest: rrr.PullRequest,

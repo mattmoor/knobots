@@ -1,35 +1,42 @@
-package whitespace
+package typo
 
 import (
 	"context"
+	"path/filepath"
 	"strings"
-	"unicode"
 
+	"github.com/client9/misspell"
 	"github.com/google/go-github/github"
 	"sourcegraph.com/sourcegraph/go-diff/diff"
 
 	"github.com/mattmoor/knobots/pkg/botinfo"
 	"github.com/mattmoor/knobots/pkg/comment"
 	"github.com/mattmoor/knobots/pkg/handler"
-	"github.com/mattmoor/knobots/pkg/reviewrequest"
-	"github.com/mattmoor/knobots/pkg/reviewresult"
+	"github.com/mattmoor/knobots/pkg/handler/reviewrequest"
+	"github.com/mattmoor/knobots/pkg/handler/reviewresult"
 	"github.com/mattmoor/knobots/pkg/visitor"
 )
 
-type whitespace struct{}
+type typo struct{}
 
-var _ handler.Interface = (*whitespace)(nil)
+var _ handler.Interface = (*typo)(nil)
 
 func New(context.Context) handler.Interface {
-	return &whitespace{}
+	return &typo{}
 }
 
-func (*whitespace) GetType() interface{} {
+func (*typo) GetType() interface{} {
 	return &reviewrequest.Response{}
 }
 
-func (*whitespace) Handle(ctx context.Context, x interface{}) (handler.Response, error) {
+func (*typo) Handle(ctx context.Context, x interface{}) (handler.Response, error) {
 	rrr := x.(*reviewrequest.Response)
+
+	r := misspell.Replacer{
+		Replacements: misspell.DictMain,
+		Debug:        false,
+	}
+	r.Compile()
 
 	var comments []*github.DraftReviewComment
 	err := visitor.Hunks(ctx, rrr.Owner, rrr.Repository, rrr.PullRequest,
@@ -42,56 +49,35 @@ func (*whitespace) Handle(ctx context.Context, x interface{}) (handler.Response,
 			// For subsequent hunks, this is covered by the trailing `\n`
 			// in each hunk, but the first needs to start at offset 1.
 			offset := 1
-			lastSeen := ""
 			for _, hunk := range hs {
 				lines := strings.Split(string(hunk.Body), "\n")
 				for _, line := range lines {
-					lastSeen = line
 					// Increase our offset for each line we see.
 					if strings.HasPrefix(line, "+") {
 						orig := line[1:]
-						updated := strings.TrimRightFunc(orig, unicode.IsSpace)
+						updated := orig // Default to skip comment when to files match.
+						if filepath.Ext(path) == ".go" {
+							updated, _ = r.ReplaceGo(orig)
+						} else if filepath.Ext(path) == ".md" {
+							updated, _ = r.Replace(orig)
+						}
 						if updated != orig {
 							position := offset // Copy it because of &.
 							comments = append(comments, &github.DraftReviewComment{
 								Path:     &path,
 								Position: &position,
 								Body: comment.WithCaptionedSuggestion(
-									"Remove trailing whitespace:",
+									"Found potential misspelling(s):",
 									updated,
 								),
 							})
 						}
+
 					}
 					// Increase our offset for each line we see.
 					offset++
 				}
 			}
-			offset--
-
-			// If the last offset is the first line in the file, and it looks
-			// like a path, then don't complain as this is very likely a symlink.
-			if offset == 1 {
-				if strings.HasPrefix(lastSeen, "+../") {
-					return visitor.Continue, nil
-				}
-			}
-
-			// Check if the last line was added, but wasn't a newline.
-			// This signifies that the file has a new line at the end of the file,
-			// which doesn't have a trailing newline.
-			if strings.HasPrefix(lastSeen, "+") && lastSeen != "+" {
-				position := offset // Copy it because of &.
-				comments = append(comments, &github.DraftReviewComment{
-					Path:     &path,
-					Position: &position,
-					Body: comment.WithCaptionedSuggestion(
-						"Add trailing newline:",
-						lastSeen[1:]+"\n",
-					),
-				})
-			}
-
 			return visitor.Continue, nil
 		})
 	if err != nil {
@@ -100,7 +86,7 @@ func (*whitespace) Handle(ctx context.Context, x interface{}) (handler.Response,
 
 	return &reviewresult.Payload{
 		Name:        botinfo.GetName(),
-		Description: `Check for whitespace issues in PRs.`,
+		Description: `Check for typos in added lines.`,
 		Owner:       rrr.Owner,
 		Repository:  rrr.Repository,
 		PullRequest: rrr.PullRequest,
