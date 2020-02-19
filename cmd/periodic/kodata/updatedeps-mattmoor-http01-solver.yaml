@@ -1,0 +1,25 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
+metadata:
+  generateName: update-deps-mattmoor-http01-solver-
+  namespace: default
+spec:
+  taskRef:
+    name: dep-update
+  inputs:
+    resources:
+    - name: source
+      resourceSpec:
+        type: git
+        params:
+        - name: url
+          value: https://github.com/mattmoor/http01-solver.git
+    params:
+    - name: ORGANIZATION
+      value: mattmoor
+    - name: REPOSITORY
+      value: http01-solver
+    - name: DEPENDENCIES
+      value: knative.dev/test-infra knative.dev/pkg knative.dev/serving
+    - name: ASSIGNEE
+      value: mattmoor
