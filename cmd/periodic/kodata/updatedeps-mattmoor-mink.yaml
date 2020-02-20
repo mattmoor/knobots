@@ -20,6 +20,6 @@ spec:
     - name: REPOSITORY
       value: mink
     - name: DEPENDENCIES
-      value: knative.dev/test-infra knative.dev/pkg knative.dev/serving  knative.dev/eventing # github.com/mattmoor/http01-solver github.com/tektoncd/pipeline
+      value: knative.dev/test-infra knative.dev/pkg knative.dev/serving  knative.dev/eventing github.com/mattmoor/http01-solver github.com/tektoncd/pipeline
     - name: ASSIGNEE
       value: mattmoor
