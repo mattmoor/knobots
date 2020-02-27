@@ -1,0 +1,23 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
+metadata:
+  generateName: gotool-knative-net-istio-
+  namespace: default
+spec:
+  taskRef:
+    name: gotool
+  inputs:
+    resources:
+    - name: source
+      resourceSpec:
+        type: git
+        params:
+        - name: url
+          value: https://github.com/knative/net-istio.git
+    params:
+    - name: ORGANIZATION
+      value: knative
+    - name: REPOSITORY
+      value: net-istio
+    - name: ASSIGNEE
+      value: tcnghia

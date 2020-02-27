@@ -1,0 +1,26 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
+metadata:
+  generateName: update-deps-knative-net-istio-
+  namespace: default
+spec:
+  taskRef:
+    name: dep-update
+  inputs:
+    resources:
+    - name: source
+      resourceSpec:
+        type: git
+        params:
+        - name: url
+          value: https://github.com/knative/net-istio.git
+    params:
+    - name: ORGANIZATION
+      value: knative
+    - name: REPOSITORY
+      value: net-istio
+    - name: DEPENDENCIES
+      value: knative.dev/test-infra knative.dev/pkg knative.dev/serving
+    - name: ASSIGNEE
+      value: tcnghia
+
