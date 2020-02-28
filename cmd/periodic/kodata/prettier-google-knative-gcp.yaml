@@ -1,0 +1,23 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
+metadata:
+  generateName: prettier-google-knative-gcp-
+  namespace: default
+spec:
+  taskRef:
+    name: prettier
+  inputs:
+    resources:
+    - name: source
+      resourceSpec:
+        type: git
+        params:
+        - name: url
+          value: https://github.com/google/knative-gcp.git
+    params:
+    - name: ORGANIZATION
+      value: google
+    - name: REPOSITORY
+      value: knative-gcp
+    - name: ASSIGNEE
+      value: nachocano
