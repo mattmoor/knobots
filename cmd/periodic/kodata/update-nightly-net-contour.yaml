@@ -1,0 +1,31 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
+metadata:
+  generateName: test-nightly-
+  namespace: default
+spec:
+  taskRef:
+    name: nightly-build
+  inputs:
+    resources:
+    - name: source
+      resourceSpec:
+        type: git
+        params:
+        - name: url
+          value: https://github.com/knative/serving.git
+    params:
+    - name: ORGANIZATION
+      value: knative
+    - name: REPOSITORY
+      value: serving
+    - name: ASSIGNEE
+      value: shashwathi tanzeeb
+    - name: SOURCE_REPO
+      value: net-contour
+    - name: TARGET_DIRECTORY
+      value: ./third_party/contour-latest
+    - name: FILES
+      value: net-contour.yaml contour.yaml
+    - name: TEST_NAME
+      value: pull-knative-serving-contour-latest

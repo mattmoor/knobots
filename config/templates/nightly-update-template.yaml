@@ -1,0 +1,65 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: nightly-build
+spec:
+  inputs:
+    params:
+    - name: ORGANIZATION
+    - name: REPOSITORY
+    - name: SOURCE_REPO
+    - name: TARGET_DIRECTORY
+    - name: FILES
+    - name: TEST_NAME
+    - name: BRANCH
+      default: master
+    - name: ASSIGNEE
+      default: mattmoor
+    resources:
+    - name: source
+      type: git
+
+  steps:
+  - name: download-nightly
+    image: gcr.io/mattmoor-knative/curl
+    command: ["/bin/bash", "-c"]
+    args:
+    - |
+      for x in $(inputs.params.FILES); do
+        curl https://storage.googleapis.com/knative-nightly/$(inputs.params.SOURCE_REPO)/latest/$x > /workspace/source/$(inputs.params.TARGET_DIRECTORY)/$x
+      done
+
+  - name: open-pull-request
+    image: github.com/mattmoor/knobots/cmd/pr-builder
+    args:
+    - "-workspace=/workspace/source"
+    - "-organization=$(inputs.params.ORGANIZATION)"
+    - "-repository=$(inputs.params.REPOSITORY)"
+    - "-title=Update $(inputs.params.SOURCE_REPO) nightly"
+    - "-branch=$(inputs.params.BRANCH)"
+    - "-body"
+    - |
+        Produced via:
+          `curl https://storage.googleapis.com/knative-nightly/$(inputs.params.SOURCE_REPO)/latest/$x > /workspace/source/$(inputs.params.TARGET_DIRECTORY)/$x`
+        /assign $(inputs.params.ASSIGNEE)
+        /cc $(inputs.params.ASSIGNEE)
+        /test $(inputs.params.TEST_NAME)
+
+    env:
+    # Inject the generated pod name so that we can use it as a
+    # pseudo-random branch name (and associate open PRs with
+    # build logs).
+    - name: POD_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name
+
+    # This mimics the runtime contract of the GithubBinding
+    volumeMounts:
+    - name: github-binding
+      mountPath: /var/bindings/github
+
+  volumes:
+  - name: github-binding
+    secret:
+      secretName: github-comment-secret
