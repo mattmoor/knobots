@@ -36,10 +36,13 @@ spec:
       elif [ "$(inputs.params.REPOSITORY)" == "sample-controller" ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
-      elif [ "$(inputs.params.REPOSITORY)" == "net-contour" ]
+      elif [ "$(inputs.params.REPOSITORY)" == "sample-source" ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
-      elif [ "$(inputs.params.REPOSITORY)" == "net-istio" ]
+      elif [ "$(inputs.params.REPOSITORY)" == net-contour ]
+      then
+        export PARENT_DIR=${GOPATH}/src/knative.dev
+      elif [ "$(inputs.params.REPOSITORY)" == net-istio ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
       elif [ "$(inputs.params.REPOSITORY)" == "test-infra" ]
@@ -54,6 +57,12 @@ spec:
       elif [ "$(inputs.params.REPOSITORY)" == eventing-contrib ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
+      elif [ "$(inputs.params.REPOSITORY)" == eventing-operator ]
+      then
+        export PARENT_DIR=${GOPATH}/src/knative.dev
+      elif [ "$(inputs.params.REPOSITORY)" == serving-operator ]
+      then
+        export PARENT_DIR=${GOPATH}/src/knative.dev
       elif [ "$(inputs.params.REPOSITORY)" == "caching" ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
@@ -62,12 +71,11 @@ spec:
       ln -s /workspace/source ${PARENT_DIR}/$(inputs.params.REPOSITORY)
       cd ${PARENT_DIR}/$(inputs.params.REPOSITORY)
       export REPO_ROOT_DIR=${PARENT_DIR}/$(inputs.params.REPOSITORY)
-      dep ensure -update $(inputs.params.DEPENDENCIES)
       go get -u github.com/google/licenseclassifier
       go get -u github.com/knative/test-infra/tools/dep-collector
       export PATH=${PATH}:${GOPATH}/bin
       # Sometimes we "fix up" ./vendor, so run this for good measure.
-      ./hack/update-deps.sh
+      ./hack/update-deps.sh --upgrade
       # We may pull in code-generator updates.
       ./hack/update-codegen.sh
     env:
@@ -85,7 +93,7 @@ spec:
     - "-body"
     - |
         Produced via:
-          `dep ensure -update $(inputs.params.DEPENDENCIES)`
+          `./hack/update-deps.sh --upgrade && ./hack/update-codegen.sh`
         /assign $(inputs.params.ASSIGNEE)
         /cc $(inputs.params.ASSIGNEE)
 

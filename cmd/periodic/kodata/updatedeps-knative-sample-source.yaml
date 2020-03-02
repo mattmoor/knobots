@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1alpha1
 kind: TaskRun
 metadata:
-  generateName: update-deps-knative-sample-sample-
+  generateName: update-deps-knative-sample-source-
   namespace: default
 spec:
   taskRef:
@@ -13,12 +13,12 @@ spec:
         type: git
         params:
         - name: url
-          value: https://github.com/knative/sample-sample.git
+          value: https://github.com/knative/sample-source.git
     params:
     - name: ORGANIZATION
       value: knative
     - name: REPOSITORY
-      value: sample-sample
+      value: sample-source
     - name: DEPENDENCIES
       value: knative.dev/test-infra knative.dev/pkg knative.dev/eventing
     - name: ASSIGNEE

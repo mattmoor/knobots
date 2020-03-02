@@ -39,6 +39,9 @@ spec:
       elif [ "$(inputs.params.REPOSITORY)" == "sample-controller" ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
+      elif [ "$(inputs.params.REPOSITORY)" == "sample-source" ]
+      then
+        export PARENT_DIR=${GOPATH}/src/knative.dev
       elif [ "$(inputs.params.REPOSITORY)" == net-contour ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
@@ -55,6 +58,12 @@ spec:
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
       elif [ "$(inputs.params.REPOSITORY)" == eventing-contrib ]
+      then
+        export PARENT_DIR=${GOPATH}/src/knative.dev
+      elif [ "$(inputs.params.REPOSITORY)" == eventing-operator ]
+      then
+        export PARENT_DIR=${GOPATH}/src/knative.dev
+      elif [ "$(inputs.params.REPOSITORY)" == serving-operator ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
       elif [ "$(inputs.params.REPOSITORY)" == "caching" ]
