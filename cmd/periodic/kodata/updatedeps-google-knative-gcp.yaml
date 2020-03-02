@@ -19,7 +19,5 @@ spec:
       value: google
     - name: REPOSITORY
       value: knative-gcp
-    - name: DEPENDENCIES
-      value: knative.dev/test-infra knative.dev/pkg knative.dev/eventing knative.dev/serving
     - name: ASSIGNEE
       value: nachocano

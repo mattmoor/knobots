@@ -19,8 +19,6 @@ spec:
       value: knative
     - name: REPOSITORY
       value: eventing-operator
-    - name: DEPENDENCIES
-      value: knative.dev/test-infra knative.dev/pkg
     - name: ASSIGNEE
       value: k4leung4
 

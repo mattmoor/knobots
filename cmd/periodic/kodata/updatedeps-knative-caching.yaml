@@ -19,7 +19,5 @@ spec:
       value: knative
     - name: REPOSITORY
       value: caching
-    - name: DEPENDENCIES
-      value: knative.dev/test-infra knative.dev/pkg
     - name: ASSIGNEE
       value: n3wscott

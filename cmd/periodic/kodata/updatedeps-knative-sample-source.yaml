@@ -19,7 +19,5 @@ spec:
       value: knative
     - name: REPOSITORY
       value: sample-source
-    - name: DEPENDENCIES
-      value: knative.dev/test-infra knative.dev/pkg knative.dev/eventing
     - name: ASSIGNEE
       value: n3wscott

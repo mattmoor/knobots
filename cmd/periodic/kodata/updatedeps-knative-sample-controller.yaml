@@ -19,7 +19,5 @@ spec:
       value: knative
     - name: REPOSITORY
       value: sample-controller
-    - name: DEPENDENCIES
-      value: knative.dev/test-infra knative.dev/pkg
     - name: ASSIGNEE
       value: vagababov

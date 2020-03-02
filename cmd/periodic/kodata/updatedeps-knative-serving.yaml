@@ -19,7 +19,5 @@ spec:
       value: knative
     - name: REPOSITORY
       value: serving
-    - name: DEPENDENCIES
-      value: knative.dev/test-infra knative.dev/pkg knative.dev/caching
     - name: ASSIGNEE
       value: vagababov

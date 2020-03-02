@@ -19,8 +19,6 @@ spec:
       value: knative
     - name: REPOSITORY
       value: net-istio
-    - name: DEPENDENCIES
-      value: knative.dev/test-infra knative.dev/pkg knative.dev/serving
     - name: ASSIGNEE
       value: tcnghia
 

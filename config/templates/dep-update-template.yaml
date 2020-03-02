@@ -8,7 +8,6 @@ spec:
     params:
     - name: ORGANIZATION
     - name: REPOSITORY
-    - name: DEPENDENCIES
     - name: BRANCH
       default: master
     - name: ASSIGNEE

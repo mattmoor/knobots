@@ -19,7 +19,5 @@ spec:
       value: knative
     - name: REPOSITORY
       value: pkg
-    - name: DEPENDENCIES
-      value: knative.dev/test-infra
     - name: ASSIGNEE
       value: n3wscott

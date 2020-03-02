@@ -19,8 +19,6 @@ spec:
       value: knative
     - name: REPOSITORY
       value: eventing-contrib
-    - name: DEPENDENCIES
-      value: knative.dev/test-infra knative.dev/pkg knative.dev/serving knative.dev/eventing
     - name: ASSIGNEE
       value: n3wscott
 
