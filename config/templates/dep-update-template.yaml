@@ -28,6 +28,7 @@ spec:
     - |
       set -e
       set -x
+      export PATH="$GOPATH/bin:$PATH"
       export PARENT_DIR=${GOPATH}/src/github.com/$(inputs.params.ORGANIZATION)
       if [ "$(inputs.params.REPOSITORY)" == "pkg" ]
       then
