@@ -1,0 +1,23 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
+metadata:
+  generateName: update-deps-knative-networking-
+  namespace: default
+spec:
+  taskRef:
+    name: dep-update
+  inputs:
+    resources:
+    - name: source
+      resourceSpec:
+        type: git
+        params:
+        - name: url
+          value: https://github.com/knative/networking.git
+    params:
+    - name: ORGANIZATION
+      value: knative
+    - name: REPOSITORY
+      value: networking
+    - name: ASSIGNEE
+      value: tcnghia

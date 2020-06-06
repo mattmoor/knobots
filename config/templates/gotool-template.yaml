@@ -42,28 +42,31 @@ spec:
       elif [ "$(inputs.params.REPOSITORY)" == "sample-source" ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
-      elif [ "$(inputs.params.REPOSITORY)" == net-contour ]
+      elif [ "$(inputs.params.REPOSITORY)" == "networking" ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
-      elif [ "$(inputs.params.REPOSITORY)" == net-istio ]
+      elif [ "$(inputs.params.REPOSITORY)" == "net-contour" ]
+      then
+        export PARENT_DIR=${GOPATH}/src/knative.dev
+      elif [ "$(inputs.params.REPOSITORY)" == "net-istio" ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
       elif [ "$(inputs.params.REPOSITORY)" == "test-infra" ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
-      elif [ "$(inputs.params.REPOSITORY)" == serving ]
+      elif [ "$(inputs.params.REPOSITORY)" == "serving" ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
-      elif [ "$(inputs.params.REPOSITORY)" == eventing ]
+      elif [ "$(inputs.params.REPOSITORY)" == "eventing" ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
-      elif [ "$(inputs.params.REPOSITORY)" == eventing-contrib ]
+      elif [ "$(inputs.params.REPOSITORY)" == "eventing-contrib" ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
-      elif [ "$(inputs.params.REPOSITORY)" == eventing-operator ]
+      elif [ "$(inputs.params.REPOSITORY)" == "eventing-operator" ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
-      elif [ "$(inputs.params.REPOSITORY)" == serving-operator ]
+      elif [ "$(inputs.params.REPOSITORY)" == "serving-operator" ]
       then
         export PARENT_DIR=${GOPATH}/src/knative.dev
       elif [ "$(inputs.params.REPOSITORY)" == "caching" ]
